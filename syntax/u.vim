@@ -1,412 +1,389 @@
-" Copyright 2009 The Go Authors. All rights reserved.
-" Use of this source code is governed by a BSD-style
-" license that can be found in the LICENSE file.
+" Vim syntax file
+" Language:     Rust
+" Maintainer:   Patrick Walton <pcwalton@mozilla.com>
+" Maintainer:   Ben Blum <bblum@cs.cmu.edu>
+" Maintainer:   Chris Morgan <me@chrismorgan.info>
+" Last Change:  Feb 24, 2016
+" For bugs, patches and license go to https://github.com/rust-lang/rust.vim
+
+if version < 600
+	syntax clear
+elseif exists("b:current_syntax")
+	finish
+endif
+
+" Syntax definitions {{{1
+" Basic keywords {{{2
+syn keyword   rustConditional match if else
+syn keyword   rustRepeat loop while
+" `:syn match` must be used to prioritize highlighting `for` keyword.
+syn match     rustRepeat /\<for\>/
+" Highlight `for` keyword in `impl ... for ... {}` statement. This line must
+" be put after previous `syn match` line to overwrite it.
+syn match     rustKeyword /\%(\<impl\>.\+\)\@<=\<for\>/
+syn keyword   rustRepeat in
+syn keyword   rustTypedef type nextgroup=rustIdentifier skipwhite skipempty
+syn keyword   rustStructure struct enum nextgroup=rustIdentifier skipwhite skipempty
+syn keyword   rustUnion union nextgroup=rustIdentifier skipwhite skipempty contained
+syn match rustUnionContextual /\<union\_s\+\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*/ transparent contains=rustUnion
+syn keyword   rustOperator    as
+syn keyword   rustExistential existential nextgroup=rustTypedef skipwhite skipempty contained
+syn match rustExistentialContextual /\<existential\_s\+type/ transparent contains=rustExistential,rustTypedef
+
+syn match     rustAssert      "\<assert\(\w\)*,," contained
+syn match     rustPanic       "\<panic\(\w\)*,," contained
+" syn match     rustAsync       "\<async\%(\s\|\n\)\@="
+syn keyword   rustKeyword     async
+syn keyword   rustKeyword     break
+syn keyword   rustKeyword     box
+syn keyword   rustKeyword     continue
+syn keyword   rustKeyword     crate
+syn keyword   rustKeyword     extern nextgroup=rustExternCrate,rustObsoleteExternMod skipwhite skipempty
+syn keyword   rustKeyword     fn func nextgroup=rustFuncName skipwhite skipempty
+syn keyword   rustKeyword     impl let
+syn keyword   rustKeyword     macro union
+syn keyword   rustKeyword     pub nextgroup=rustPubScope skipwhite skipempty
+syn keyword   rustKeyword     return ret
+syn keyword   rustKeyword     yield
+syn keyword   rustSuper       super
+syn keyword   rustKeyword     where
+syn keyword   rustUnsafeKeyword unsafe
+syn keyword   rustKeyword     use import nextgroup=rustModPath skipwhite skipempty
+" FIXME: Scoped impl's name is also fallen in this category
+syn keyword   rustKeyword     mod trait interface nextgroup=rustIdentifier skipwhite skipempty
+syn keyword   rustStorage     move mut ref
+syn keyword   rustKeyword     static const
+syn match     rustDefault     /\<default\ze\_s\+\(impl\|fn\|type\|const\)\>/
+syn keyword   rustAwait       await
+syn match     rustKeyword     /\<try\>!\@!/ display
+
+syn keyword rustPubScopeCrate crate contained
+syn match rustPubScopeDelim /[()]/ contained
+syn match rustPubScope /([^()]*)/ contained contains=rustPubScopeDelim,rustPubScopeCrate,rustSuper,rustModPath,rustModPathSep,rustSelf transparent
+
+syn keyword   rustExternCrate crate contained nextgroup=rustIdentifier,rustExternCrateString skipwhite skipempty
+" This is to get the `bar` part of `extern crate "foo" as bar;` highlighting.
+syn match   rustExternCrateString /".*"\_s*as/ contained nextgroup=rustIdentifier skipwhite transparent skipempty contains=rustString,rustOperator
+syn keyword   rustObsoleteExternMod mod contained nextgroup=rustIdentifier skipwhite skipempty
+
+syn match     rustIdentifier  contains=rustIdentifierPrime "\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_|\-\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*" display contained
+syn match     rustFuncName    "\%(r#\)\=\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*" display contained
+
+syn region rustMacroRepeat matchgroup=rustMacroRepeatDelimiters start="$(" end="),\=[*+]" contains=TOP
+syn match rustMacroVariable "$\w\+"
+syn match rustRawIdent "\<r#\h\w*" contains=NONE
+
+" Reserved (but not yet used) keywords {{{2
+syn keyword   rustReservedKeyword become do priv typeof unsized abstract virtual final override
+
+" Built-in types {{{2
+syn keyword   rustType        isize usize char bool u8 u16 u32 u64 u128 f32
+syn keyword   rustType        f64 i8 i16 i32 i64 i128 str Self
+
+" Things from the libstd v1 prelude (src/libstd/prelude/v1.rs) {{{2
+" This section is just straight transformation of the contents of the prelude,
+" to make it easy to update.
+
+" Reexported core operators {{{3
+syn keyword   rustTrait       i-copy i-send i-sized i-sync
+syn keyword   rustTrait       i-drop i-fn i-fn-mut i-fn-once
+
+" Reexported functions {{{3
+" There’s no point in highlighting these; when one writes drop( or drop::< it
+" gets the same highlighting anyway, and if someone writes `let drop = …;` we
+" don’t really want *that* drop to be highlighted.
+"syn keyword rustFunction drop
+
+" Reexported types and traits {{{3
+syn keyword rustTrait Box
+syn keyword rustTrait ToOwned
+syn keyword rustTrait i-clone
+syn keyword rustTrait i-partial-eq i-partial-ord i-eq i-ord
+syn keyword rustTrait i-as-ref i-as-mut i-into i-from
+syn keyword rustTrait i-default
+syn keyword rustTrait i-iterator i-extend i-into-iterator
+syn keyword rustTrait DoubleEndedIterator ExactSizeIterator
+syn keyword rustEnum e-option
+syn keyword rustEnumVariant Some None
+syn keyword rustEnum e-result
+syn keyword rustEnumVariant Ok Err
+syn keyword rustTrait SliceConcatExt
+syn keyword rustTrait String ToString
+syn keyword rustTrait Vec
+
+" Other syntax {{{2
+syn keyword   rustSelf        self
+syn keyword   rustBoolean     true false
+
+" If foo::bar changes to foo.bar, change this ("::" to "\.").
+" If foo::bar changes to Foo::bar, change this (first "\w" to "\u").
+syn match     rustModPath     "\w\(\w\)*::[^<]"he=e-3,me=e-3
+syn match     rustModPathSep  "\.\."
+
+syn match     rustFuncCall    "\w\(\w\)*("he=e-1,me=e-1
+syn match     rustFuncCall    "\w\(\w\)*::<"he=e-3,me=e-3 " foo::<T>();
+
+" This is merely a convention; note also the use of [A-Z], restricting it to
+" latin identifiers rather than the full Unicode uppercase. I have not used
+" [:upper:] as it depends upon 'noignorecase'
+"syn match     rustCapsIdent    display "[A-Z]\w\(\w\)*"
+
+syn match     rustOperator     display "\%(+\|\~\|/\|*\|=\|\^\|&\||\|!\|>\|<\|%\|:\)=\?"
+" This one isn't *quite* right, as we could have binary-& with a reference
+syn match     rustSigil        display /&\s\+[&~@*][^)= \t\r\n]/he=e-1,me=e-1
+syn match     rustSigil        display /[&~@*][^)= \t\r\n]/he=e-1,me=e-1
+" This isn't actually correct; a closure with no arguments can be `|| { }`.
+" Last, because the & in && isn't a sigil
+syn match     rustOperator     display "&&\|||"
+" This is rustArrowCharacter rather than rustArrow for the sake of matchparen,
+" so it skips the ->; see http://stackoverflow.com/a/30309949 for details.
+syn match     rustArrowCharacter display "->"
+syn match     rustQuestionMark display "?\([a-zA-Z]\+\)\@!"
+
+syn match     rustMacro       '\w\(\w\)*,,' contains=rustAssert,rustPanic
+syn match     rustMacro       '#\w\(\w\)*' contains=rustAssert,rustPanic
+
+syn match     rustEscapeError   display contained /\\./
+syn match     rustEscape        display contained /\\\([nrt0\\'"]\|x\x\{2}\)/
+syn match     rustEscapeUnicode display contained /\\u{\%(\x_*\)\{1,6}}/
+syn match     rustStringContinuation display contained /\\\n\s*/
+syn region    rustString      matchgroup=rustStringDelimiter start=+b"+ skip=+\\\\\|\\"+ end=+"+ contains=rustEscape,rustEscapeError,rustStringContinuation
+syn region    rustString      matchgroup=rustStringDelimiter start=+"+ skip=+\\\\\|\\"+ end=+"+ contains=rustEscape,rustEscapeUnicode,rustEscapeError,rustStringContinuation,@Spell
+syn region    rustString      matchgroup=rustStringDelimiter start='b\?r\z(#*\)"' end='"\z1' contains=@Spell
+
+" Match attributes with either arbitrary syntax or special highlighting for
+" derives. We still highlight strings and comments inside of the attribute.
+syn region    rustAttribute   start="#!\?\[" end="\]" contains=@rustAttributeContents,rustAttributeParenthesizedParens,rustAttributeParenthesizedCurly,rustAttributeParenthesizedBrackets,rustDerive
+syn region    rustAttributeParenthesizedParens matchgroup=rustAttribute start="\w\%(\w\)*("rs=e end=")"re=s transparent contained contains=rustAttributeBalancedParens,@rustAttributeContents
+syn region    rustAttributeParenthesizedCurly matchgroup=rustAttribute start="\w\%(\w\)*{"rs=e end="}"re=s transparent contained contains=rustAttributeBalancedCurly,@rustAttributeContents
+syn region    rustAttributeParenthesizedBrackets matchgroup=rustAttribute start="\w\%(\w\)*\["rs=e end="\]"re=s transparent contained contains=rustAttributeBalancedBrackets,@rustAttributeContents
+syn region    rustAttributeBalancedParens matchgroup=rustAttribute start="("rs=e end=")"re=s transparent contained contains=rustAttributeBalancedParens,@rustAttributeContents
+syn region    rustAttributeBalancedCurly matchgroup=rustAttribute start="{"rs=e end="}"re=s transparent contained contains=rustAttributeBalancedCurly,@rustAttributeContents
+syn region    rustAttributeBalancedBrackets matchgroup=rustAttribute start="\["rs=e end="\]"re=s transparent contained contains=rustAttributeBalancedBrackets,@rustAttributeContents
+syn cluster   rustAttributeContents contains=rustString,rustCommentLine,rustCommentBlock,rustCommentLineDocError,rustCommentBlockDocError
+syn region    rustDerive      start="derive(" end=")" contained contains=rustDeriveTrait
+" This list comes from src/libsyntax/ext/deriving/mod.rs
+" Some are deprecated (Encodable, Decodable) or to be removed after a new snapshot (Show).
+syn keyword   rustDeriveTrait contained Clone Hash RustcEncodable RustcDecodable Encodable Decodable PartialEq Eq PartialOrd Ord Rand Show Debug Default FromPrimitive Send Sync Copy
+
+" dyn keyword: It's only a keyword when used inside a type expression, so
+" we make effort here to highlight it only when Rust identifiers follow it
+" (not minding the case of pre-2018 Rust where a path starting with :: can
+" follow).
 "
-" u.vim: Vim syntax file for U.
+" This is so that uses of dyn variable names such as in 'let &dyn = &2'
+" and 'let dyn = 2' will not get highlighted as a keyword.
+syn match     rustKeyword "\<dyn\ze\_s\+\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)" contains=rustDynKeyword
+syn keyword   rustDynKeyword  dyn contained
 
-" Quit when a (custom) syntax file was already loaded
-if exists("b:current_syntax")
-  finish
-endif
-let b:current_syntax = "u"
+" Number literals
+syn match     rustDecNumber   display "\<[0-9][0-9_]*\%([iu]\%(size\|8\|16\|32\|64\|128\)\)\="
+syn match     rustHexNumber   display "\<0x[a-fA-F0-9_]\+\%([iu]\%(size\|8\|16\|32\|64\|128\)\)\="
+syn match     rustOctNumber   display "\<0o[0-7_]\+\%([iu]\%(size\|8\|16\|32\|64\|128\)\)\="
+syn match     rustBinNumber   display "\<0b[01_]\+\%([iu]\%(size\|8\|16\|32\|64\|128\)\)\="
 
-syn case match
+" Special case for numbers of the form "1." which are float literals, unless followed by
+" an identifier, which makes them integer literals with a method call or field access,
+" or by another ".", which makes them integer literals followed by the ".." token.
+" (This must go first so the others take precedence.)
+syn match     rustFloat       display "\<[0-9][0-9_]*\.\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\|\.\)\@!"
+" To mark a number as a normal float, it must have at least one of the three things integral values don't have:
+" a decimal point and more numbers; an exponent; and a type suffix.
+syn match     rustFloat       display "\<[0-9][0-9_]*\%(\.[0-9][0-9_]*\)\%([eE][+-]\=[0-9_]\+\)\=\(f32\|f64\)\="
+syn match     rustFloat       display "\<[0-9][0-9_]*\%(\.[0-9][0-9_]*\)\=\%([eE][+-]\=[0-9_]\+\)\(f32\|f64\)\="
+syn match     rustFloat       display "\<[0-9][0-9_]*\%(\.[0-9][0-9_]*\)\=\%([eE][+-]\=[0-9_]\+\)\=\(f32\|f64\)"
 
-syn keyword     goPackage           package
-syn keyword     goImport            import    contained
-syn keyword     goVar               var       contained
-syn keyword     goConst             const     contained
+" For the benefit of delimitMate
+syn region rustLifetimeCandidate display start=/&'\%(\([^'\\]\|\\\(['nrt0\\\"]\|x\x\{2}\|u{\%(\x_*\)\{1,6}}\)\)'\)\@!/ end=/[[:cntrl:][:space:][:punct:]]\@=\|$/ contains=rustSigil,rustLifetime
+syn region rustGenericRegion display start=/<\%('\|[^[:cntrl:][:space:][:punct:]]\)\@=')\S\@=/ end=/>/ contains=rustGenericLifetimeCandidate
+syn region rustGenericLifetimeCandidate display start=/\%(<\|,\s*\)\@<='/ end=/[[:cntrl:][:space:][:punct:]]\@=\|$/ contains=rustSigil,rustLifetime
 
-hi def link     goPackage           Statement
-hi def link     goImport            Statement
-hi def link     goVar               Keyword
-hi def link     goConst             Keyword
-hi def link     goDeclaration       Keyword
+"rustLifetime must appear before rustCharacter, or chars will get the lifetime highlighting
+syn match     rustLifetime    display "\'\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*"
+syn match     rustLabel       display "\'\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*:"
+syn match     rustLabel       display "\%(\<\%(break\|continue\)\s*\)\@<=\'\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*"
+syn match   rustCharacterInvalid   display contained /b\?'\zs[\n\r\t']\ze'/
+" The groups negated here add up to 0-255 but nothing else (they do not seem to go beyond ASCII).
+syn match   rustCharacterInvalidUnicode   display contained /b'\zs[^[:cntrl:][:graph:][:alnum:][:space:]]\ze'/
+syn match   rustCharacter   /b'\([^\\]\|\\\(.\|x\x\{2}\)\)'/ contains=rustEscape,rustEscapeError,rustCharacterInvalid,rustCharacterInvalidUnicode
+syn match   rustCharacter   /'\([^\\]\|\\\(.\|x\x\{2}\|u{\%(\x_*\)\{1,6}}\)\)'/ contains=rustEscape,rustEscapeUnicode,rustEscapeError,rustCharacterInvalid
 
-" Keywords within functions
-syn keyword     goStatement         defer go goto return break continue fallthrough
-syn keyword     goConditional       if else switch select
-syn keyword     goLabel             case default
-syn keyword     goRepeat            for range
+syn match rustShebang /\%^#![^[].*/
+syn region rustCommentLine                                                  start="//"                      end="$"   contains=rustTodo,@Spell
+syn region rustCommentLineDoc                                               start="//\%(//\@!\|!\)"         end="$"   contains=rustTodo,@Spell
+syn region rustCommentLineDocError                                          start="//\%(//\@!\|!\)"         end="$"   contains=rustTodo,@Spell contained
+syn region rustCommentBlock             matchgroup=rustCommentBlock         start="/\*\%(!\|\*[*/]\@!\)\@!" end="\*/" contains=rustTodo,rustCommentBlockNest,@Spell
+syn region rustCommentBlockDoc          matchgroup=rustCommentBlockDoc      start="/\*\%(!\|\*[*/]\@!\)"    end="\*/" contains=rustTodo,rustCommentBlockDocNest,rustCommentBlockDocRustCode,@Spell
+syn region rustCommentBlockDocError     matchgroup=rustCommentBlockDocError start="/\*\%(!\|\*[*/]\@!\)"    end="\*/" contains=rustTodo,rustCommentBlockDocNestError,@Spell contained
+syn region rustCommentBlockNest         matchgroup=rustCommentBlock         start="/\*"                     end="\*/" contains=rustTodo,rustCommentBlockNest,@Spell contained transparent
+syn region rustCommentBlockDocNest      matchgroup=rustCommentBlockDoc      start="/\*"                     end="\*/" contains=rustTodo,rustCommentBlockDocNest,@Spell contained transparent
+syn region rustCommentBlockDocNestError matchgroup=rustCommentBlockDocError start="/\*"                     end="\*/" contains=rustTodo,rustCommentBlockDocNestError,@Spell contained transparent
 
-hi def link     goStatement         Statement
-hi def link     goConditional       Conditional
-hi def link     goLabel             Label
-hi def link     goRepeat            Repeat
+" FIXME: this is a really ugly and not fully correct implementation. Most
+" importantly, a case like ``/* */*`` should have the final ``*`` not being in
+" a comment, but in practice at present it leaves comments open two levels
+" deep. But as long as you stay away from that particular case, I *believe*
+" the highlighting is correct. Due to the way Vim's syntax engine works
+" (greedy for start matches, unlike Rust's tokeniser which is searching for
+" the earliest-starting match, start or end), I believe this cannot be solved.
+" Oh you who would fix it, don't bother with things like duplicating the Block
+" rules and putting ``\*\@<!`` at the start of them; it makes it worse, as
+" then you must deal with cases like ``/*/**/*/``. And don't try making it
+" worse with ``\%(/\@<!\*\)\@<!``, either...
 
-" Predefined types
-syn keyword     goType              chan map bool string error
-syn keyword     goSignedInts        int int8 int16 int32 int64 rune
-syn keyword     goUnsignedInts      byte uint uint8 uint16 uint32 uint64 uintptr
-syn keyword     goFloats            float32 float64
-syn keyword     goComplexes         complex64 complex128
+syn keyword rustTodo contained TODO FIXME XXX NB NOTE SAFETY
 
-hi def link     goType              Type
-hi def link     goSignedInts        Type
-hi def link     goUnsignedInts      Type
-hi def link     goFloats            Type
-hi def link     goComplexes         Type
+" asm! macro {{{2
+syn region rustAsmMacro matchgroup=rustMacro start="\<asm,,\s*(" end=")" contains=rustAsmDirSpec,rustAsmSym,rustAsmConst,rustAsmOptionsGroup,rustComment.*,rustString.*
 
-" Predefined functions and values
-syn keyword     goBuiltins                 append cap close complex copy delete imag len
-syn keyword     goBuiltins                 make new panic print println real recover
-syn keyword     goBoolean                  true false
-syn keyword     goPredefinedIdentifiers    nil iota
+" Clobbered registers
+syn keyword rustAsmDirSpec in out lateout inout inlateout contained nextgroup=rustAsmReg skipwhite skipempty
+syn region  rustAsmReg start="(" end=")" contained contains=rustString
 
-hi def link     goBuiltins                 Identifier
-hi def link     goBoolean                  Boolean
-hi def link     goPredefinedIdentifiers    goBoolean
+" Symbol operands
+syn keyword rustAsmSym sym contained nextgroup=rustAsmSymPath skipwhite skipempty
+syn region  rustAsmSymPath start="\S" end=",\|)"me=s-1 contained contains=rustComment.*,rustIdentifier
 
-" Comments; their contents
-syn keyword     goTodo              contained TODO FIXME XXX BUG
-syn cluster     goCommentGroup      contains=goTodo
+" Const
+syn region  rustAsmConstBalancedParens start="("ms=s+1 end=")" contained contains=@rustAsmConstExpr
+syn cluster rustAsmConstExpr contains=rustComment.*,rust.*Number,rustString,rustAsmConstBalancedParens
+syn region  rustAsmConst start="const" end=",\|)"me=s-1 contained contains=rustStorage,@rustAsmConstExpr
 
-syn region      goComment           start="//" end="$" contains=goGenerate,@goCommentGroup,@Spell
-if go#config#FoldEnable('comment')
-  syn region    goComment           start="/\*" end="\*/" contains=@goCommentGroup,@Spell fold
-  syn match     goComment           "\v(^\s*//.*\n)+" contains=goGenerate,@goCommentGroup,@Spell fold
-else
-  syn region    goComment           start="/\*" end="\*/" contains=@goCommentGroup,@Spell
-endif
+" Options
+syn region  rustAsmOptionsGroup start="options\s*(" end=")" contained contains=rustAsmOptions,rustAsmOptionsKey
+syn keyword rustAsmOptionsKey options contained
+syn keyword rustAsmOptions pure nomem readonly preserves_flags noreturn nostack att_syntax contained
 
-hi def link     goComment           Comment
-hi def link     goTodo              Todo
+" Folding rules {{{2
+" Trivial folding rules to begin with.
+" FIXME: use the AST to make really good folding
+syn region rustFoldBraces start="{" end="}" transparent fold
 
-if go#config#HighlightGenerateTags()
-  syn match       goGenerateVariables contained /\%(\$GOARCH\|\$GOOS\|\$GOFILE\|\$GOLINE\|\$GOPACKAGE\|\$DOLLAR\)\>/
-  syn region      goGenerate          start="^\s*//go:generate" end="$" contains=goGenerateVariables
-  hi def link     goGenerate          PreProc
-  hi def link     goGenerateVariables Special
-endif
+if !exists("b:current_syntax_embed")
+	" let b:current_syntax_embed = 1
+	" syntax include @RustCodeInComment <sfile>:p:h/rust.vim
+	" unlet b:current_syntax_embed
 
-" Go escapes
-syn match       goEscapeOctal       display contained "\\[0-7]\{3}"
-syn match       goEscapeC           display contained +\\[abfnrtv\\'"]+
-syn match       goEscapeX           display contained "\\x\x\{2}"
-syn match       goEscapeU           display contained "\\u\x\{4}"
-syn match       goEscapeBigU        display contained "\\U\x\{8}"
-syn match       goEscapeError       display contained +\\[^0-7xuUabfnrtv\\'"]+
+	" Currently regions marked as ```<some-other-syntax> will not get
+	" highlighted at all. In the future, we can do as vim-markdown does and
+	" highlight with the other syntax. But for now, let's make sure we find
+	" the closing block marker, because the rules below won't catch it.
+	syn region rustCommentLinesDocNonRustCode matchgroup=rustCommentDocCodeFence start='^\z(\s*//[!/]\s*```\).\+$' end='^\z1$' keepend contains=rustCommentLineDoc
 
-hi def link     goEscapeOctal       goSpecialString
-hi def link     goEscapeC           goSpecialString
-hi def link     goEscapeX           goSpecialString
-hi def link     goEscapeU           goSpecialString
-hi def link     goEscapeBigU        goSpecialString
-hi def link     goSpecialString     Special
-hi def link     goEscapeError       Error
-
-" Strings and their contents
-syn cluster     goStringGroup       contains=goEscapeOctal,goEscapeC,goEscapeX,goEscapeU,goEscapeBigU,goEscapeError
-if go#config#HighlightStringSpellcheck()
-  syn region      goString            start=+"+ skip=+\\\\\|\\"+ end=+"+ contains=@goStringGroup,@Spell
-  syn region      goRawString         start=+`+ end=+`+ contains=@Spell
-else
-  syn region      goString            start=+"+ skip=+\\\\\|\\"+ end=+"+ contains=@goStringGroup
-  syn region      goRawString         start=+`+ end=+`+
-endif
-
-if go#config#HighlightFormatStrings()
-  " [n] notation is valid for specifying explicit argument indexes
-  " 1. Match a literal % not preceded by a %.
-  " 2. Match any number of -, #, 0, space, or +
-  " 3. Match * or [n]* or any number or nothing before a .
-  " 4. Match * or [n]* or any number or nothing after a .
-  " 5. Match [n] or nothing before a verb
-  " 6. Match a formatting verb
-  syn match       goFormatSpecifier   /\
-        \%([^%]\%(%%\)*\)\
-        \@<=%[-#0 +]*\
-        \%(\%(\%(\[\d\+\]\)\=\*\)\|\d\+\)\=\
-        \%(\.\%(\%(\%(\[\d\+\]\)\=\*\)\|\d\+\)\=\)\=\
-        \%(\[\d\+\]\)\=[vTtbcdoqxXUeEfFgGsp]/ contained containedin=goString,goRawString
-  hi def link     goFormatSpecifier   goSpecialString
-endif
-
-hi def link     goString            String
-hi def link     goRawString         String
-
-" Characters; their contents
-syn cluster     goCharacterGroup    contains=goEscapeOctal,goEscapeC,goEscapeX,goEscapeU,goEscapeBigU
-syn region      goCharacter         start=+'+ skip=+\\\\\|\\'+ end=+'+ contains=@goCharacterGroup
-
-hi def link     goCharacter         Character
-
-" Regions
-syn region      goParen             start='(' end=')' transparent
-if go#config#FoldEnable('block')
-  syn region    goBlock             start="{" end="}" transparent fold
-else
-  syn region    goBlock             start="{" end="}" transparent
+	" We borrow the rules from rust’s src/librustdoc/html/markdown.rs, so that
+	" we only highlight as Rust what it would perceive as Rust (almost; it’s
+	" possible to trick it if you try hard, and indented code blocks aren’t
+	" supported because Markdown is a menace to parse and only mad dogs and
+	" Englishmen would try to handle that case correctly in this syntax file).
+	syn region rustCommentLinesDocRustCode matchgroup=rustCommentDocCodeFence start='^\z(\s*//[!/]\s*```\)[^A-Za-z0-9_-]*\%(\%(should_panic\|no_run\|ignore\|allow_fail\|rust\|test_harness\|compile_fail\|E\d\{4}\|edition201[58]\)\%([^A-Za-z0-9_-]\+\|$\)\)*$' end='^\z1$' keepend contains=@RustCodeInComment,rustCommentLineDocLeader
+	syn region rustCommentBlockDocRustCode matchgroup=rustCommentDocCodeFence start='^\z(\%(\s*\*\)\?\s*```\)[^A-Za-z0-9_-]*\%(\%(should_panic\|no_run\|ignore\|allow_fail\|rust\|test_harness\|compile_fail\|E\d\{4}\|edition201[58]\)\%([^A-Za-z0-9_-]\+\|$\)\)*$' end='^\z1$' keepend contains=@RustCodeInComment,rustCommentBlockDocStar
+	" Strictly, this may or may not be correct; this code, for example, would
+	" mishighlight:
+	"
+	"     /**
+	"     ```rust
+	"     println!("{}", 1
+	"     * 1);
+	"     ```
+	"     */
+	"
+	" … but I don’t care. Balance of probability, and all that.
+	syn match rustCommentBlockDocStar /^\s*\*\s\?/ contained
+	syn match rustCommentLineDocLeader "^\s*//\%(//\@!\|!\)" contained
 endif
 
-" import
-if go#config#FoldEnable('import')
-  syn region    goImport            start='import (' end=')' transparent fold contains=goImport,goString,goComment
-else
-  syn region    goImport            start='import (' end=')' transparent contains=goImport,goString,goComment
-endif
+" Default highlighting {{{1
+hi def link rustDecNumber       rustNumber
+hi def link rustHexNumber       rustNumber
+hi def link rustOctNumber       rustNumber
+hi def link rustBinNumber       rustNumber
+hi def link rustIdentifierPrime rustIdentifier
+hi def link rustTrait           rustType
+hi def link rustDeriveTrait     rustTrait
 
-" var, const
-if go#config#FoldEnable('varconst')
-  syn region    goVar               start='var ('   end='^\s*)$' transparent fold
-                        \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
-  syn region    goConst             start='const (' end='^\s*)$' transparent fold
-                        \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
-else
-  syn region    goVar               start='var ('   end='^\s*)$' transparent
-                        \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
-  syn region    goConst             start='const (' end='^\s*)$' transparent
-                        \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
-endif
+hi def link rustMacroRepeatDelimiters   Macro
+hi def link rustMacroVariable Define
+hi def link rustSigil         StorageClass
+hi def link rustEscape        Special
+hi def link rustEscapeUnicode rustEscape
+hi def link rustEscapeError   Error
+hi def link rustStringContinuation Special
+hi def link rustString        String
+hi def link rustStringDelimiter String
+hi def link rustCharacterInvalid Error
+hi def link rustCharacterInvalidUnicode rustCharacterInvalid
+hi def link rustCharacter     Character
+hi def link rustNumber        Number
+hi def link rustBoolean       Boolean
+hi def link rustEnum          rustType
+hi def link rustEnumVariant   rustConstant
+hi def link rustConstant      Constant
+hi def link rustSelf          Constant
+hi def link rustFloat         Float
+hi def link rustArrowCharacter rustOperator
+hi def link rustOperator      Operator
+hi def link rustKeyword       Keyword
+hi def link rustDynKeyword    rustKeyword
+hi def link rustTypedef       Keyword " More precise is Typedef, but it doesn't feel right for Rust
+hi def link rustStructure     Keyword " More precise is Structure
+hi def link rustUnion         rustStructure
+hi def link rustExistential   rustKeyword
+hi def link rustPubScopeDelim Delimiter
+hi def link rustPubScopeCrate rustKeyword
+hi def link rustSuper         rustKeyword
+hi def link rustUnsafeKeyword Exception
+hi def link rustReservedKeyword Error
+hi def link rustRepeat        Conditional
+hi def link rustConditional   Conditional
+hi def link rustIdentifier    Identifier
+hi def link rustCapsIdent     rustIdentifier
+hi def link rustModPath       Include
+hi def link rustModPathSep    Delimiter
+hi def link rustFunction      Function
+hi def link rustFuncName      Function
+hi def link rustFuncCall      Function
+hi def link rustShebang       Comment
+hi def link rustCommentLine   Comment
+hi def link rustCommentLineDoc SpecialComment
+hi def link rustCommentLineDocLeader rustCommentLineDoc
+hi def link rustCommentLineDocError Error
+hi def link rustCommentBlock  rustCommentLine
+hi def link rustCommentBlockDoc rustCommentLineDoc
+hi def link rustCommentBlockDocStar rustCommentBlockDoc
+hi def link rustCommentBlockDocError Error
+hi def link rustCommentDocCodeFence rustCommentLineDoc
+hi def link rustAssert        PreCondit
+hi def link rustPanic         PreCondit
+hi def link rustMacro         Macro
+hi def link rustType          Type
+hi def link rustTodo          Todo
+hi def link rustAttribute     PreProc
+hi def link rustDerive        PreProc
+hi def link rustDefault       StorageClass
+hi def link rustStorage       StorageClass
+hi def link rustObsoleteStorage Error
+hi def link rustLifetime      Special
+hi def link rustLabel         Label
+hi def link rustExternCrate   rustKeyword
+hi def link rustObsoleteExternMod Error
+hi def link rustQuestionMark  Special
+hi def link rustAsync         rustKeyword
+hi def link rustAwait         rustKeyword
+hi def link rustAsmDirSpec    rustKeyword
+hi def link rustAsmSym        rustKeyword
+hi def link rustAsmOptions    rustKeyword
+hi def link rustAsmOptionsKey rustAttribute
 
-" Single-line var, const, and import.
-syn match       goSingleDecl        /\%(import\|var\|const\) [^(]\@=/ contains=goImport,goVar,goConst
+" Other Suggestions:
+" hi rustAttribute ctermfg=cyan
+" hi rustDerive ctermfg=cyan
+" hi rustAssert ctermfg=yellow
+" hi rustPanic ctermfg=red
+" hi rustMacro ctermfg=magenta
 
-" Integers
-syn match       goDecimalInt        "\<-\=\d\+\%([Ee][-+]\=\d\+\)\=\>"
-syn match       goHexadecimalInt    "\<-\=0[xX]\x\+\>"
-syn match       goOctalInt          "\<-\=0\o\+\>"
-syn match       goOctalError        "\<-\=0\o*[89]\d*\>"
+syn sync minlines=200
+syn sync maxlines=500
 
-hi def link     goDecimalInt        Integer
-hi def link     goHexadecimalInt    Integer
-hi def link     goOctalInt          Integer
-hi def link     goOctalError        Error
-hi def link     Integer             Number
+let b:current_syntax = "rust"
 
-" Floating point
-syn match       goFloat             "\<-\=\d\+\.\d*\%([Ee][-+]\=\d\+\)\=\>"
-syn match       goFloat             "\<-\=\.\d\+\%([Ee][-+]\=\d\+\)\=\>"
-
-hi def link     goFloat             Float
-
-" Imaginary literals
-syn match       goImaginary         "\<-\=\d\+i\>"
-syn match       goImaginary         "\<-\=\d\+[Ee][-+]\=\d\+i\>"
-syn match       goImaginaryFloat    "\<-\=\d\+\.\d*\%([Ee][-+]\=\d\+\)\=i\>"
-syn match       goImaginaryFloat    "\<-\=\.\d\+\%([Ee][-+]\=\d\+\)\=i\>"
-
-hi def link     goImaginary         Number
-hi def link     goImaginaryFloat    Float
-
-" Spaces after "[]"
-if go#config#HighlightArrayWhitespaceError()
-  syn match goSpaceError display "\%(\[\]\)\@<=\s\+"
-endif
-
-" Spacing errors around the 'chan' keyword
-if go#config#HighlightChanWhitespaceError()
-  " receive-only annotation on chan type
-  "
-  " \(\<chan\>\)\@<!<-  (only pick arrow when it doesn't come after a chan)
-  " this prevents picking up 'chan<- chan<-' but not '<- chan'
-  syn match goSpaceError display "\%(\%(\<chan\>\)\@<!<-\)\@<=\s\+\%(\<chan\>\)\@="
-
-  " send-only annotation on chan type
-  "
-  " \(<-\)\@<!\<chan\>  (only pick chan when it doesn't come after an arrow)
-  " this prevents picking up '<-chan <-chan' but not 'chan <-'
-  syn match goSpaceError display "\%(\%(<-\)\@<!\<chan\>\)\@<=\s\+\%(<-\)\@="
-
-  " value-ignoring receives in a few contexts
-  syn match goSpaceError display "\%(\%(^\|[={(,;]\)\s*<-\)\@<=\s\+"
-endif
-
-" Extra types commonly seen
-if go#config#HighlightExtraTypes()
-  syn match goExtraType /\<bytes\.\%(Buffer\)\>/
-  syn match goExtraType /\<context\.\%(Context\)\>/
-  syn match goExtraType /\<io\.\%(Reader\|ReadSeeker\|ReadWriter\|ReadCloser\|ReadWriteCloser\|Writer\|WriteCloser\|Seeker\)\>/
-  syn match goExtraType /\<reflect\.\%(Kind\|Type\|Value\)\>/
-  syn match goExtraType /\<unsafe\.Pointer\>/
-endif
-
-" Space-tab error
-if go#config#HighlightSpaceTabError()
-  syn match goSpaceError display " \+\t"me=e-1
-endif
-
-" Trailing white space error
-if go#config#HighlightTrailingWhitespaceError()
-  syn match goSpaceError display excludenl "\s\+$"
-endif
-
-hi def link     goExtraType         Type
-hi def link     goSpaceError        Error
-
-
-
-" included from: https://github.com/athom/more-colorful.vim/blob/master/after/syntax/go.vim
-"
-" Comments; their contents
-syn keyword     goTodo              contained NOTE
-hi def link     goTodo              Todo
-
-syn match goVarArgs /\.\.\./
-
-" Operators;
-if go#config#HighlightOperators()
-  " match single-char operators:          - + % < > ! & | ^ * =
-  " and corresponding two-char operators: -= += %= <= >= != &= |= ^= *= ==
-  syn match goOperator /[-+%<>!&|^*=]=\?/
-  " match / and /=
-  syn match goOperator /\/\%(=\|\ze[^/*]\)/
-  " match two-char operators:               << >> &^
-  " and corresponding three-char operators: <<= >>= &^=
-  syn match goOperator /\%(<<\|>>\|&^\)=\?/
-  " match remaining two-char operators: := && || <- ++ --
-  syn match goOperator /:=\|||\|<-\|++\|--/
-  " match ...
-
-  hi def link     goPointerOperator   goOperator
-  hi def link     goVarArgs           goOperator
-endif
-hi def link     goOperator          Operator
-
-" Functions;
-if go#config#HighlightFunctions() || go#config#HighlightFunctionParameters()
-  syn match goDeclaration       /\<func\>/ nextgroup=goReceiver,goFunction,goSimpleParams skipwhite skipnl
-  syn match goReceiverVar       /\w\+\ze\s\+\%(\w\|\*\)/ nextgroup=goPointerOperator,goReceiverType skipwhite skipnl contained
-  syn match goPointerOperator   /\*/ nextgroup=goReceiverType contained skipwhite skipnl
-  " syn match goFunction          /\w\+/ nextgroup=goSimpleParams contained skipwhite skipnl
-  syn match goFunction          /\w\+\(-*\w\)*/ nextgroup=goSimpleParams contained skipwhite skipnl
-  syn match goReceiverType      /\w\+/ contained
-  if go#config#HighlightFunctionParameters()
-    syn match goSimpleParams      /(\%(\w\|\_s\|[*\.\[\],\{\}<>-]\)*)/ contained contains=goParamName,goType nextgroup=goFunctionReturn skipwhite skipnl
-    syn match goFunctionReturn   /(\%(\w\|\_s\|[*\.\[\],\{\}<>-]\)*)/ contained contains=goParamName,goType skipwhite skipnl
-    syn match goParamName        /\w\+\%(\s*,\s*\w\+\)*\ze\s\+\%(\w\|\.\|\*\|\[\)/ contained nextgroup=goParamType skipwhite skipnl
-    syn match goParamType        /\%([^,)]\|\_s\)\+,\?/ contained nextgroup=goParamName skipwhite skipnl
-                          \ contains=goVarArgs,goType,goSignedInts,goUnsignedInts,goFloats,goComplexes,goDeclType,goBlock
-    hi def link   goReceiverVar    goParamName
-    hi def link   goParamName      Identifier
-  endif
-  syn match goReceiver          /(\s*\w\+\%(\s\+\*\?\s*\w\+\)\?\s*)\ze\s*\w/ contained nextgroup=goFunction contains=goReceiverVar skipwhite skipnl
-else
-  syn keyword goDeclaration func
-endif
-hi def link     goFunction          Function
-
-" Function calls;
-if go#config#HighlightFunctionCalls()
-  syn match goFunctionCall      /\w\+\ze(/ contains=goBuiltins,goDeclaration
-endif
-hi def link     goFunctionCall      Type
-
-" Fields;
-if go#config#HighlightFields()
-  " 1. Match a sequence of word characters coming after a '.'
-  " 2. Require the following but dont match it: ( \@= see :h E59)
-  "    - The symbols: / - + * %   OR
-  "    - The symbols: [] {} <> )  OR
-  "    - The symbols: \n \r space OR
-  "    - The symbols: , : .
-  " 3. Have the start of highlight (hs) be the start of matched
-  "    pattern (s) offsetted one to the right (+1) (see :h E401)
-  syn match       goField   /\.\w\+\
-        \%(\%([\/\-\+*%]\)\|\
-        \%([\[\]{}<\>\)]\)\|\
-        \%([\!=\^|&]\)\|\
-        \%([\n\r\ ]\)\|\
-        \%([,\:.]\)\)\@=/hs=s+1
-endif
-hi def link    goField              Identifier
-
-" Structs & Interfaces;
-if go#config#HighlightTypes()
-  syn match goTypeConstructor      /\<\w\+{\@=/
-  syn match goTypeDecl             /\<type\>/ nextgroup=goTypeName skipwhite skipnl
-  syn match goTypeName             /\w\+/ contained nextgroup=goDeclType skipwhite skipnl
-  syn match goDeclType             /\<\%(interface\|struct\)\>/ skipwhite skipnl
-  hi def link     goReceiverType      Type
-else
-  syn keyword goDeclType           struct interface
-  syn keyword goDeclaration        type
-endif
-hi def link     goTypeConstructor   Type
-hi def link     goTypeName          Type
-hi def link     goTypeDecl          Keyword
-hi def link     goDeclType          Keyword
-
-" Variable Assignments
-if go#config#HighlightVariableAssignments()
-  syn match goVarAssign /\v[_.[:alnum:]]+(,\s*[_.[:alnum:]]+)*\ze(\s*([-^+|^\/%&]|\*|\<\<|\>\>|\&\^)?\=[^=])/
-  hi def link   goVarAssign         Special
-endif
-
-" Variable Declarations
-if go#config#HighlightVariableDeclarations()
-  syn match goVarDefs /\v\w+(,\s*\w+)*\ze(\s*:\=)/
-  hi def link   goVarDefs           Special
-endif
-
-" Build Constraints
-if go#config#HighlightBuildConstraints()
-  syn match   goBuildKeyword      display contained "+build"
-  " Highlight the known values of GOOS, GOARCH, and other +build options.
-  syn keyword goBuildDirectives   contained
-        \ android darwin dragonfly freebsd linux nacl netbsd openbsd plan9
-        \ solaris windows 386 amd64 amd64p32 arm armbe arm64 arm64be ppc64
-        \ ppc64le mips mipsle mips64 mips64le mips64p32 mips64p32le ppc
-        \ s390 s390x sparc sparc64 cgo ignore race
-
-  " Other words in the build directive are build tags not listed above, so
-  " avoid highlighting them as comments by using a matchgroup just for the
-  " start of the comment.
-  " The rs=s+2 option lets the \s*+build portion be part of the inner region
-  " instead of the matchgroup so it will be highlighted as a goBuildKeyword.
-  syn region  goBuildComment      matchgroup=goBuildCommentStart
-        \ start="//\s*+build\s"rs=s+2 end="$"
-        \ contains=goBuildKeyword,goBuildDirectives
-  hi def link goBuildCommentStart Comment
-  hi def link goBuildDirectives   Type
-  hi def link goBuildKeyword      PreProc
-endif
-
-if go#config#HighlightBuildConstraints() || go#config#FoldEnable('package_comment')
-  " One or more line comments that are followed immediately by a "package"
-  " declaration are treated like package documentation, so these must be
-  " matched as comments to avoid looking like working build constraints.
-  " The he, me, and re options let the "package" itself be highlighted by
-  " the usual rules.
-  exe 'syn region  goPackageComment    start=/\v(\/\/.*\n)+\s*package/'
-        \ . ' end=/\v\n\s*package/he=e-7,me=e-7,re=e-7'
-        \ . ' contains=@goCommentGroup,@Spell'
-        \ . (go#config#FoldEnable('package_comment') ? ' fold' : '')
-  exe 'syn region  goPackageComment    start=/\v^\s*\/\*.*\n(.*\n)*\s*\*\/\npackage/'
-        \ . ' end=/\v\*\/\n\s*package/he=e-7,me=e-7,re=e-7'
-        \ . ' contains=@goCommentGroup,@Spell'
-        \ . (go#config#FoldEnable('package_comment') ? ' fold' : '')
-  hi def link goPackageComment    Comment
-endif
-
-" :GoCoverage commands
-hi def link goCoverageNormalText Comment
-
-function! s:hi()
-  hi def link goSameId Search
-
-  " :GoCoverage commands
-  hi def      goCoverageCovered    ctermfg=green guifg=#A6E22E
-  hi def      goCoverageUncover    ctermfg=red guifg=#F92672
-
-  " :GoDebug commands
-  if go#config#HighlightDebug()
-    hi GoDebugBreakpoint term=standout ctermbg=117 ctermfg=0 guibg=#BAD4F5  guifg=Black
-    hi GoDebugCurrent term=reverse  ctermbg=12  ctermfg=7 guibg=DarkBlue guifg=White
-  endif
-endfunction
-
-augroup vim-go-hi
-  autocmd!
-  autocmd ColorScheme * call s:hi()
-augroup end
-call s:hi()
-
-" Search backwards for a global declaration to start processing the syntax.
-"syn sync match goSync grouphere NONE /^\(const\|var\|type\|func\)\>/
-
-" There's a bug in the implementation of grouphere. For now, use the
-" following as a more expensive/less precise workaround.
-syn sync minlines=500
-
-" vim: sw=2 ts=2 et
+" vim: set et sw=4 sts=4 ts=8:
