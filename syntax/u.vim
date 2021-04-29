@@ -66,7 +66,7 @@ syn keyword   rustExternCrate crate contained nextgroup=rustIdentifier,rustExter
 syn match   rustExternCrateString /".*"\_s*as/ contained nextgroup=rustIdentifier skipwhite transparent skipempty contains=rustString,rustOperator
 syn keyword   rustObsoleteExternMod mod contained nextgroup=rustIdentifier skipwhite skipempty
 
-syn match     rustIdentifier  contains=rustIdentifierPrime "\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_|\-\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*" display contained
+syn match     rustIdentifier  contains=rustIdentifierPrime "\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_|\-\)\%([^[:cntrl:][:punct:][:space:]]\|_\|\-\)*" display contained
 syn match     rustFuncName    "\%(r#\)\=\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*" display contained
 
 syn region rustMacroRepeat matchgroup=rustMacroRepeatDelimiters start="$(" end="),\=[*+]" contains=TOP
@@ -112,16 +112,20 @@ syn keyword rustTrait String ToString
 syn keyword rustTrait Vec
 
 " Other syntax {{{2
-syn keyword   rustSelf        self
+syn keyword   rustSelf        self s
 syn keyword   rustBoolean     true false
 
 " If foo::bar changes to foo.bar, change this ("::" to "\.").
 " If foo::bar changes to Foo::bar, change this (first "\w" to "\u").
-syn match     rustModPath     "\w\(\w\)*::[^<]"he=e-3,me=e-3
+syn match     rustModPath     "\w\(\w\)*[\/\{]"he=e-1,me=e-1
 syn match     rustModPathSep  "\.\."
 
-syn match     rustFuncCall    "\w\(\w\)*("he=e-1,me=e-1
-syn match     rustFuncCall    "\w\(\w\)*::<"he=e-3,me=e-3 " foo::<T>();
+syn match     rustFuncCall    "\<[a-zA-Z0-9-]\+("he=e-1,me=e-1
+syn match     rustFuncCall    "\<[a-zA-Z0-9-]\+\["he=e-1,me=e-1 " foo[T]();
+
+" because rustIdentifier is contained, match it's parent, i.e. declaration instead
+syn match     rustSymbol    "\<[a-zA-Z0-9-]\+[\+]\?\s[const|static|func|struct|enum|union|type|interface|impl|macro|mod|\(]"he=e-1,me=e-1
+syn match     rustSymbol    "\<[a-zA-Z0-9-]\+[\+][\[]"he=e-1,me=e-1
 
 " This is merely a convention; note also the use of [A-Z], restricting it to
 " latin identifiers rather than the full Unicode uppercase. I have not used
@@ -135,6 +139,7 @@ syn match     rustSigil        display /[&~@*][^)= \t\r\n]/he=e-1,me=e-1
 " This isn't actually correct; a closure with no arguments can be `|| { }`.
 " Last, because the & in && isn't a sigil
 syn match     rustOperator     display "&&\|||"
+syn match     rustOperator     display "\~\~"
 " This is rustArrowCharacter rather than rustArrow for the sake of matchparen,
 " so it skips the ->; see http://stackoverflow.com/a/30309949 for details.
 syn match     rustArrowCharacter display "->"
@@ -373,6 +378,8 @@ hi def link rustAsmDirSpec    rustKeyword
 hi def link rustAsmSym        rustKeyword
 hi def link rustAsmOptions    rustKeyword
 hi def link rustAsmOptionsKey rustAttribute
+
+hi def link rustSymbol        Identifier
 
 " Other Suggestions:
 " hi rustAttribute ctermfg=cyan
