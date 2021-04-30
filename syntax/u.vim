@@ -115,17 +115,20 @@ syn keyword rustTrait Vec
 syn keyword   rustSelf        self s
 syn keyword   rustBoolean     true false
 
+syn match     rustIInterface    "\<i-[a-zA-Z0-9-]\+"
+syn match     rustEEnum         "\<e-[a-zA-Z0-9-]\+"
+
+" because rustIdentifier is contained, match it's parent, i.e. declaration instead
+syn match     rustSymbol    "\<[a-zA-Z0-9-]\+[\+]\?\s\(const\|static\|func\|struct\|enum\|union\|type\|interface\|impl\|macro\|mod\|(\)\@="he=e-1,me=e-1
+syn match     rustSymbol    "\<[a-zA-Z0-9-]\+[\+][\[]"he=e-1,me=e-1
+
 " If foo::bar changes to foo.bar, change this ("::" to "\.").
 " If foo::bar changes to Foo::bar, change this (first "\w" to "\u").
-syn match     rustModPath     "\w\(\w\)*[\/\{]"he=e-1,me=e-1
+syn match     rustModPath     "[a-zA-Z0-9-]\+[\/\{]"he=e-1,me=e-1 contained
 syn match     rustModPathSep  "\.\."
 
 syn match     rustFuncCall    "\<[a-zA-Z0-9-]\+("he=e-1,me=e-1
 syn match     rustFuncCall    "\<[a-zA-Z0-9-]\+\["he=e-1,me=e-1 " foo[T]();
-
-" because rustIdentifier is contained, match it's parent, i.e. declaration instead
-syn match     rustSymbol    "\<[a-zA-Z0-9-]\+[\+]\?\s[const|static|func|struct|enum|union|type|interface|impl|macro|mod|\(]"he=e-1,me=e-1
-syn match     rustSymbol    "\<[a-zA-Z0-9-]\+[\+][\[]"he=e-1,me=e-1
 
 " This is merely a convention; note also the use of [A-Z], restricting it to
 " latin identifiers rather than the full Unicode uppercase. I have not used
@@ -380,6 +383,8 @@ hi def link rustAsmOptions    rustKeyword
 hi def link rustAsmOptionsKey rustAttribute
 
 hi def link rustSymbol        Identifier
+hi def link rustIInterface    Type
+hi def link rustEEnum         Type
 
 " Other Suggestions:
 " hi rustAttribute ctermfg=cyan
