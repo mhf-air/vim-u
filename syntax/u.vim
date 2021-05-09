@@ -1,3 +1,5 @@
+" cloned and modified from https://github.com/rust-lang/rust.vim
+
 " Vim syntax file
 " Language:     Rust
 " Maintainer:   Patrick Walton <pcwalton@mozilla.com>
