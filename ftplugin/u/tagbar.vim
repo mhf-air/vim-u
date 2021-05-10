@@ -15,29 +15,27 @@ endif
 let s:cpo_save = &cpo
 set cpo&vim
 
-if !exists("g:go_gotags_bin")
-  let g:go_gotags_bin = "u tags"
+if !exists("g:u_tags_bin")
+  let g:u_tags_bin = "utags"
 endif
 
 
 function! s:SetTagbar()
-  let bin_path = g:go_gotags_bin
+  let bin_path = g:u_tags_bin
   if empty(bin_path)
 	  return
   endif
 
-  if !exists("g:tagbar_type_go")
-	  let g:tagbar_type_go = {
-	  	  \ 'ctagstype' : 'go',
+  if !exists("g:tagbar_type_u")
+	  let g:tagbar_type_u = {
+	  	  \ 'ctagstype' : 'u',
 	  	  \ 'kinds'     : [
-	  	  \ 'p:package',
 	  	  \ 'i:imports',
 	  	  \ 'c:constants',
 	  	  \ 'v:variables',
 	  	  \ 't:types',
 	  	  \ 'n:interfaces',
 	  	  \ 'w:fields',
-	  	  \ 'e:embedded',
 	  	  \ 'm:methods',
 	  	  \ 'r:constructor',
 	  	  \ 'f:functions'

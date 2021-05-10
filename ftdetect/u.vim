@@ -14,7 +14,10 @@ function! u#BeforeRead()
 		\ "text" : ">>",
 		\ "texthl" : "uError"})
 
-	call prop_type_add('uPropType', {'highlight': 'Error'})
+	let prop_type = prop_type_get('uPropType')
+	if empty(prop_type)
+		call prop_type_add('uPropType', {'highlight': 'Error'})
+	endif
 
 	let s:last_line = -1
 	let s:echoed_empty = 0
@@ -30,7 +33,10 @@ function! u#ToRust()
 	" let l:output = '[ { "lnum": 1,  "col": 1, "_width": 6, "text": "one" }, { "lnum": 10, "col": 9, "_width": 5, "text": "two" }, { "lnum": 30, "col": 9, "_width": 4, "text": "three" }, ]'
 	let l:list = []
 	if l:output != ""
-		let l:list = json_decode(l:output)
+		try
+			let l:list = json_decode(l:output)
+		catch /.*/
+		endtry
 	endif
 
 	call sign_unplace('*', {'buffer' : "%"})
