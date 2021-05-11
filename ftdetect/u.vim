@@ -24,6 +24,9 @@ function! u#BeforeRead()
 
 	call u#ToRust()
 
+	" Syntax highlighting breaks less often.
+	syntax sync fromstart
+
 endfunction
 
 function! u#ToRust()

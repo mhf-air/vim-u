@@ -30,17 +30,17 @@ function! s:SetTagbar()
 	  let g:tagbar_type_u = {
 	  	  \ 'ctagstype' : 'u',
 	  	  \ 'kinds'     : [
-	  	  \ 'i:imports',
+	  	  \ 'r:macros',
 	  	  \ 'c:constants',
 	  	  \ 'v:variables',
+	  	  \ 'a:aliases',
 	  	  \ 't:types',
 	  	  \ 'n:interfaces',
 	  	  \ 'w:fields',
 	  	  \ 'm:methods',
-	  	  \ 'r:constructor',
 	  	  \ 'f:functions'
 	  	  \ ],
-	  	  \ 'sro' : '.',
+	  	  \ 'sro' : '..',
 	  	  \ 'kind2scope' : {
 	  	  \ 't' : 'ctype',
 	  	  \ 'n' : 'ntype'
