@@ -9,14 +9,23 @@ au CursorMoved,CursorHold *.u  call u#ShowErrorMsg()
 
 function! u#BeforeRead()
 
-	hi uError ctermfg=9 guifg=Red
+	hi uError ctermfg=9 ctermbg=235 guifg=Red
+	hi uWarning ctermfg=11 ctermbg=235 guifg=Yellow
+
 	call sign_define("uError", {
 		\ "text" : ">>",
 		\ "texthl" : "uError"})
+	call sign_define("uWarning", {
+		\ "text" : "--",
+		\ "texthl" : "uWarning"})
 
-	let prop_type = prop_type_get('uPropType')
-	if empty(prop_type)
-		call prop_type_add('uPropType', {'highlight': 'Error'})
+	let uPropError = prop_type_get('uPropError')
+	if empty(uPropError)
+		call prop_type_add('uPropError', {'highlight': 'Error'})
+	endif
+	let uPropWarning = prop_type_get('uPropWarning')
+	if empty(uPropWarning)
+		call prop_type_add('uPropWarning', {'highlight': 'SpellCap'})
 	endif
 
 	let s:last_line = -1
@@ -33,7 +42,7 @@ function! u#ToRust()
 
 	let l:cmd = "u u-compile"
 	let l:output = system(l:cmd ." ". expand('%:p'))
-	" let l:output = '[ { "lnum": 1,  "col": 1, "_width": 6, "text": "one" }, { "lnum": 10, "col": 9, "_width": 5, "text": "two" }, { "lnum": 30, "col": 9, "_width": 4, "text": "three" }, ]'
+	" let l:output = '[ { "lnum": 1,  "col": 1, "_width": 6, "text": "one" }, { "lnum": 10, "col": 9, "_width": 5, "text": "two" }]'
 	let l:list = []
 	if l:output != ""
 		try
@@ -43,10 +52,10 @@ function! u#ToRust()
 	endif
 
 	call sign_unplace('*', {'buffer' : "%"})
-	call prop_remove({ "type": "uPropType", "all": 1 })
+	call prop_remove({ "type": "uPropError", "all": 1 })
 	for item in l:list
 		call sign_place(0, '', 'uError', '%', { 'lnum': item.lnum })
-		call prop_add(item.lnum, item.col, {'length': item._width, 'type': 'uPropType'})
+		call prop_add(item.lnum, item.col, {'length': item._width, 'type': 'uPropError'})
 	endfor
 
 	call setloclist(0, l:list, 'r')
