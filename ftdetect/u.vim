@@ -11,6 +11,8 @@ function! u#BeforeRead()
 
 	hi uError ctermfg=9 ctermbg=235 guifg=Red
 	hi uWarning ctermfg=11 ctermbg=235 guifg=Yellow
+	hi uSymbol ctermfg=9
+	hi uKeyword ctermfg=172
 
 	call sign_define("uError", {
 		\ "text" : ">>",
