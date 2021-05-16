@@ -1,3 +1,5 @@
+" modified from https://github.com/rust-lang/rust.vim
+
 if exists("b:current_syntax")
 	finish
 endif
@@ -31,18 +33,33 @@ syn keyword     uType       A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
 syn match   uSquare         /\v\[|\]/
 syn match   uBrace          /\v\{|\}/
 syn match   uDoubleBrace    /\v\{\{|\}\}/
-syn match   uOp             /\v[\+|\~|\*|\/|:|%|<<|>>|&|\||\^|=|!|<|>|``]?\=?/
-syn match   uOp             /\v[$|;|#|?|@|::|..=|\->|=>]/
+syn match   uOp             /\v[\+|\~|\*|\/|%|<<|>>|&|\||\^|=|!|<|>|``]?\=?/
+syn match   uOp             /\v[$|;|#|?|@|::|\.\.=|=>]/
+syn match   uDecl           /\v[:=|\->]/
 
 syn match   uIInterface    "\<i-[a-zA-Z0-9-]\+"
 syn match   uEEnum         "\<e-[a-zA-Z0-9-]\+"
 
-" Number literals
+syn match   uIdentifier  contains=rustIdentifierPrime "\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_|\-\)\%([^[:cntrl:][:punct:][:space:]]\|_\|\-\)*" display contained
+
+" number
 syn match   uDecNumber   display "\<[0-9][0-9_]*\%([iu]\%(size\|8\|16\|32\|64\|128\)\)\="
 syn match   uHexNumber   display "\<0x[a-fA-F0-9_]\+\%([iu]\%(size\|8\|16\|32\|64\|128\)\)\="
 syn match   uOctNumber   display "\<0o[0-7_]\+\%([iu]\%(size\|8\|16\|32\|64\|128\)\)\="
 syn match   uBinNumber   display "\<0b[01_]\+\%([iu]\%(size\|8\|16\|32\|64\|128\)\)\="
 
+" char
+" uLifetime must appear before uCharacter, or chars will get the lifetime highlighting
+syn match   uLifetime    display "\'\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*"
+syn match   uLabel       display "\'\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*:"
+syn match   uLabel       display "\%(\<\%(break\|continue\)\s*\)\@<=\'\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*"
+syn match   uCharacterInvalid   display contained /b\?'\zs[\n\r\t']\ze'/
+" The groups negated here add up to 0-255 but nothing else (they do not seem to go beyond ASCII).
+syn match   uCharacterInvalidUnicode   display contained /b'\zs[^[:cntrl:][:graph:][:alnum:][:space:]]\ze'/
+syn match   uCharacter   /b'\([^\\]\|\\\(.\|x\x\{2}\)\)'/ contains=uEscape,uEscapeError,uCharacterInvalid,uCharacterInvalidUnicode
+syn match   uCharacter   /'\([^\\]\|\\\(.\|x\x\{2}\|u{\%(\x_*\)\{1,6}}\)\)'/ contains=uEscape,uEscapeUnicode,uEscapeError,uCharacterInvalid
+
+" string
 syn match     uEscapeError   display contained /\\./
 syn match     uEscape        display contained /\\\([nrt0\\'"]\|x\x\{2}\)/
 syn match     uEscapeUnicode display contained /\\u{\%(\x_*\)\{1,6}}/
@@ -81,30 +98,53 @@ syn region uCommentBlockDocNestError matchgroup=uCommentBlockDocError   start="/
 
 " --------------------------------------------------------------------------------
 
+hi uError ctermfg=9 ctermbg=235
+hi uWarning ctermfg=11 ctermbg=235
+
+hi uSymbol ctermfg=9
+hi uKeyword ctermfg=172
+hi uIInterface ctermfg=100
+hi uUnsafe ctermfg=9
+hi uArray ctermfg=101
+hi uBrace ctermfg=102
+hi uKeyword ctermfg=11
+hi uOp ctermfg=81
+hi uAttr ctermfg=103
+hi uLabel ctermfg=103
+
+
 hi def link     uCrate          Keyword
-hi def link     uImport         Statement
-hi def link     uMod            Statement
-hi def link     uAttr           PreProc
-hi def link     uItem           Statement
-hi def link     uStmt           Statement
-hi def link     uUnsafe         uSymbol
+hi def link     uImport         uKeyword
+hi def link     uMod            uKeyword
+hi def link     uAttr           uAttr
+hi def link     uItem           uKeyword
+hi def link     uStmt           uKeyword
+hi def link     uUnsafe         uUnsafe
 hi def link     uType           Type
 
-hi def link     uBrace          PreProc
-hi def link     uDoubleBrace    TabLineSel
-hi def link     uOp             Operator
+hi def link     uBrace          uBrace
+hi def link     uDoubleBrace    uArray
+hi def link     uOp             uOp
+hi def link     uDecl           uKeyword
 
-hi def link     uBool           Boolean
-
-hi def link     uIInterface     Type
+hi def link     uIInterface     uInterface
 hi def link     uEEnum          Type
+
+hi def link     uIdentifier     Identifier
 
 hi def link     uDecNumber      Number
 hi def link     uHexNumber      Number
 hi def link     uOctNumber      Number
 hi def link     uBinNumber      Number
 
-hi def link     uString         String
+hi def link     uLifetime                   Special
+hi def link     uLabel                      uLabel
+hi def link     uString                     String
+hi def link     uStringDelimiter            String
+hi def link     uCharacter                  Character
+hi def link     uCharacterInvalid           Error
+hi def link     uCharacterInvalidUnicode    uCharacterInvalid
+hi def link     uBool                       Boolean
 
 hi def link     uCommentLine            Comment
 hi def link     uCommentLineDoc         SpecialComment
