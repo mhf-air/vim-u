@@ -124,7 +124,7 @@ syn match   uDoubleBrace    /\v\{\{|\}\}/
 hi uError ctermfg=9 ctermbg=235
 hi uWarning ctermfg=11 ctermbg=235
 
-hi uSymbol ctermfg=202
+hi uSymbol ctermfg=202 cterm=bold
 hi uFirstSymbol ctermfg=15 cterm=bold
 hi uIdentifier ctermfg=15
 hi uIInterface ctermfg=73
