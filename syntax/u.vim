@@ -18,7 +18,8 @@ syn keyword     uStmt       async await move extern dyn
 syn keyword     uStmt       as fn loop pub while return trait use
 syn keyword     uStmt       abstract become box do final override priv typeof unsized virtual yield
 
-syn keyword     uBool       true false
+syn keyword     uBool       true false s
+syn keyword     uSelf       s self
 
 syn keyword     uUnsafe     unsafe
 
@@ -142,6 +143,8 @@ hi uFunction ctermfg=221
 hi uComment ctermfg=14
 hi uMacroCall ctermfg=183
 hi uDeclSymbol ctermfg=136
+hi uSelf ctermfg=13
+hi uSpecialComment ctermfg=224
 
 
 hi def link     uCrate          uKeyword
@@ -186,8 +189,10 @@ hi def link     uCharacterInvalid           Error
 hi def link     uCharacterInvalidUnicode    uCharacterInvalid
 hi def link     uBool                       Boolean
 
+hi def link     uSelf                       uSelf
+
 hi def link     uCommentLine            uComment
-hi def link     uCommentLineDoc         SpecialComment
+hi def link     uCommentLineDoc         uSpecialComment
 hi def link     uCommentLineDocLeader   uCommentLineDoc
 hi def link     uCommentLineDocError    Error
 hi def link     uCommentBlock           uCommentLine
