@@ -99,15 +99,18 @@ syn region  uMod        start="mod {" end="}"
 syn region  uAttr       start="#!\?\[" end="\]" contains=none
 
 " comment
-syn region uCommentLine                                                 start="//"                      end="$"   contains=uTodo,@Spell
-syn region uCommentLineDoc                                              start="//\%(//\@!\|!\)"         end="$"   contains=uTodo,@Spell
-syn region uCommentLineDocError                                         start="//\%(//\@!\|!\)"         end="$"   contains=uTodo,@Spell contained
-syn region uCommentBlock             matchgroup=uCommentBlock           start="/\*\%(!\|\*[*/]\@!\)\@!" end="\*/" contains=uTodo,uCommentBlockNest,@Spell
-syn region uCommentBlockDoc          matchgroup=uCommentBlockDoc        start="/\*\%(!\|\*[*/]\@!\)"    end="\*/" contains=uTodo,uCommentBlockDocNest,uCommentBlockDocuCode,@Spell
-syn region uCommentBlockDocError     matchgroup=uCommentBlockDocError   start="/\*\%(!\|\*[*/]\@!\)"    end="\*/" contains=uTodo,uCommentBlockDocNestError,@Spell contained
-syn region uCommentBlockNest         matchgroup=uCommentBlock           start="/\*"                     end="\*/" contains=uTodo,uCommentBlockNest,@Spell contained transparent
-syn region uCommentBlockDocNest      matchgroup=uCommentBlockDoc        start="/\*"                     end="\*/" contains=uTodo,uCommentBlockDocNest,@Spell contained transparent
-syn region uCommentBlockDocNestError matchgroup=uCommentBlockDocError   start="/\*"                     end="\*/" contains=uTodo,uCommentBlockDocNestError,@Spell contained transparent
+syn region uCommentLine                                                 start="//"                      end="$"   contains=uTodo,uDocCode,@Spell
+syn region uCommentLineDoc                                              start="//\%(//\@!\|!\)"         end="$"   contains=uTodo,uDocCode,@Spell
+syn region uCommentLineDocError                                         start="//\%(//\@!\|!\)"         end="$"   contains=uTodo,uDocCode,@Spell contained
+syn region uCommentBlock             matchgroup=uCommentBlock           start="/\*\%(!\|\*[*/]\@!\)\@!" end="\*/" contains=uTodo,uDocCode,uCommentBlockNest,@Spell
+syn region uCommentBlockDoc          matchgroup=uCommentBlockDoc        start="/\*\%(!\|\*[*/]\@!\)"    end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNest,uCommentBlockDocuCode,@Spell
+syn region uCommentBlockDocError     matchgroup=uCommentBlockDocError   start="/\*\%(!\|\*[*/]\@!\)"    end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNestError,@Spell contained
+syn region uCommentBlockNest         matchgroup=uCommentBlock           start="/\*"                     end="\*/" contains=uTodo,uDocCode,uCommentBlockNest,@Spell contained transparent
+syn region uCommentBlockDocNest      matchgroup=uCommentBlockDoc        start="/\*"                     end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNest,@Spell contained transparent
+syn region uCommentBlockDocNestError matchgroup=uCommentBlockDocError   start="/\*"                     end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNestError,@Spell contained transparent
+
+
+syn region  uDocCode    start="```"     end="```" contained
 
 
 " todo
@@ -140,11 +143,12 @@ hi uAttr ctermfg=103
 hi uLabel ctermfg=103
 hi uModPathSep ctermfg=103
 hi uFunction ctermfg=221
-hi uComment ctermfg=14
 hi uMacroCall ctermfg=183
 hi uDeclSymbol ctermfg=136
 hi uSelf ctermfg=13
-hi uSpecialComment ctermfg=224
+hi uComment ctermfg=14
+hi uSpecialComment ctermfg=117
+hi uDocCode ctermfg=109
 
 
 hi def link     uCrate          uKeyword
@@ -200,6 +204,7 @@ hi def link     uCommentBlockDoc        uCommentLineDoc
 hi def link     uCommentBlockDocStar    uCommentBlockDoc
 hi def link     uCommentBlockDocError   Error
 hi def link     uCommentDocCodeFence    uCommentLineDoc
+hi def link     uDocCode                uDocCode
 
 hi def link     uTodo                   Todo
 
