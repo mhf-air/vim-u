@@ -98,14 +98,15 @@ syn region  uMod        start="mod {" end="}"
 " attr
 syn region  uAttr       start="#!\?\[" end="\]" contains=none
 
+syn match   uShebang    /\%^#![^[].*/
 " comment
-syn region uCommentLine                                                 start="//"                      end="$"   contains=uTodo,uDocCode,@Spell
+syn region uCommentLine                                                 start="//"                      end="$"   contains=uTodo,@Spell
 syn region uCommentLineDoc                                              start="//\%(//\@!\|!\)"         end="$"   contains=uTodo,uDocCode,@Spell
 syn region uCommentLineDocError                                         start="//\%(//\@!\|!\)"         end="$"   contains=uTodo,uDocCode,@Spell contained
-syn region uCommentBlock             matchgroup=uCommentBlock           start="/\*\%(!\|\*[*/]\@!\)\@!" end="\*/" contains=uTodo,uDocCode,uCommentBlockNest,@Spell
+syn region uCommentBlock             matchgroup=uCommentBlock           start="/\*\%(!\|\*[*/]\@!\)\@!" end="\*/" contains=uTodo,uCommentBlockNest,@Spell
 syn region uCommentBlockDoc          matchgroup=uCommentBlockDoc        start="/\*\%(!\|\*[*/]\@!\)"    end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNest,uCommentBlockDocuCode,@Spell
 syn region uCommentBlockDocError     matchgroup=uCommentBlockDocError   start="/\*\%(!\|\*[*/]\@!\)"    end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNestError,@Spell contained
-syn region uCommentBlockNest         matchgroup=uCommentBlock           start="/\*"                     end="\*/" contains=uTodo,uDocCode,uCommentBlockNest,@Spell contained transparent
+syn region uCommentBlockNest         matchgroup=uCommentBlock           start="/\*"                     end="\*/" contains=uTodo,uCommentBlockNest,@Spell contained transparent
 syn region uCommentBlockDocNest      matchgroup=uCommentBlockDoc        start="/\*"                     end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNest,@Spell contained transparent
 syn region uCommentBlockDocNestError matchgroup=uCommentBlockDocError   start="/\*"                     end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNestError,@Spell contained transparent
 
@@ -195,6 +196,7 @@ hi def link     uBool                       Boolean
 
 hi def link     uSelf                       uSelf
 
+hi def link     uShebang                uComment
 hi def link     uCommentLine            uComment
 hi def link     uCommentLineDoc         uSpecialComment
 hi def link     uCommentLineDocLeader   uCommentLineDoc
