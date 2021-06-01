@@ -90,7 +90,7 @@ syn region    uString      matchgroup=uStringDelimiter start=+"+ skip=+\\\\\|\\"
 syn region    uString      matchgroup=uStringDelimiter start='b\?\z(#*\)"' end='"\z1' contains=@Spell
 
 " crate
-syn region  uCrate      start="crate {" end="}" transparent contains=uCrate
+syn region  uCrate      start="crate {" end="}" transparent contains=uCrate,uCommentLine,uCommentLineDoc,uCommentBlock,uCommentBlockDoc,
 
 " mod
 syn region  uMod        start="mod {" end="}"
