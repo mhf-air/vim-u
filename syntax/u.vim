@@ -8,7 +8,7 @@ endif
 
 syn keyword     uCrate      crate       contained
 
-syn keyword     uItem       import mod
+syn keyword     uItem       import mod crate super
 syn keyword     uItem       const static type 
 syn keyword     uItem       func struct enum union interface impl macro where
 
@@ -51,8 +51,8 @@ syn match   uStructType     "\<[A-Z][a-zA-Z0-9-]\+"
 syn match   uIInterface     "\<i-[a-zA-Z0-9-]\+"
 syn match   uEEnum          "\<e-[a-zA-Z0-9-]\+"
 
-syn match   uSymbol         "\<[a-zA-Z0-9-]\+[\+]\?\s\+\(const\|static\|func\|struct\|enum\|union\|type\|interface\|macro\|mod\|(\)\@="he=e-1,me=e-1
-syn match   uSymbol         "^\s*[a-zA-Z0-9-]\+[\+]\?\["he=e-1,me=e-1
+syn match   uSymbol         "\<[a-zA-Z0-9-]\+\(+\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\s\+\(const\|static\|func\|struct\|enum\|union\|type\|interface\|macro\|mod\|(\)\@="he=e-1,me=e-1
+syn match   uSymbol         "^\s*[a-zA-Z0-9-]\+\(+\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\["he=e-1,me=e-1
 
 " macro call
 syn match   uMacroCall    "\<[a-zA-Z0-9-]\+,,"
