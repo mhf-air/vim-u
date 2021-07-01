@@ -47,10 +47,6 @@ syn match   uFuncCall    "\<[a-zA-Z0-9-]\+\["he=e-1,me=e-1 " foo[T]();
 syn match   uStructType     "\<[A-Z]"
 syn match   uStructType     "\<[A-Z][a-zA-Z0-9-]\+"
 
-" type
-syn match   uIInterface     "\<i-[a-zA-Z0-9-]\+"
-syn match   uEEnum          "\<e-[a-zA-Z0-9-]\+"
-
 syn match   uSymbol         "\<[a-zA-Z0-9-]\+\(+\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\s\+\(const\|static\|func\|struct\|enum\|union\|type\|interface\|macro\|mod\|(\)\@="he=e-1,me=e-1
 syn match   uSymbol         "^\s*[a-zA-Z0-9-]\+\(+\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\["he=e-1,me=e-1
 
@@ -132,11 +128,12 @@ hi uWarning ctermfg=11 ctermbg=235
 hi uSymbol ctermfg=202 cterm=bold
 hi uFirstSymbol ctermfg=15 cterm=bold
 hi uIdentifier ctermfg=15
-hi uIInterface ctermfg=73
+" hi uIInterface ctermfg=73
 hi uUnsafe ctermfg=9 cterm=bold
 hi uParen ctermfg=255
-hi uSquare ctermfg=121
+hi uSquare ctermfg=73
 hi uBrace ctermfg=250
+hi uDoubleBrace ctermfg=106
 hi uArray ctermfg=121
 hi uKeyword ctermfg=185
 hi uOp ctermfg=81
@@ -145,7 +142,6 @@ hi uLabel ctermfg=103
 hi uModPathSep ctermfg=103
 hi uFunction ctermfg=221
 hi uMacroCall ctermfg=183
-hi uDeclSymbol ctermfg=136
 hi uSelf ctermfg=13
 hi uComment ctermfg=14
 hi uSpecialComment ctermfg=117
@@ -164,14 +160,11 @@ hi def link     uStructType     uType
 hi def link     uParen          uParen
 hi def link     uSquare         uSquare
 hi def link     uBrace          uBrace
-hi def link     uDoubleBrace    uArray
+hi def link     uDoubleBrace    uDoubleBrace
 
 hi def link     uOp             uOp
 hi def link     uDecl           uKeyword
 hi def link     uModPathSep     uModPathSep
-
-hi def link     uIInterface     uInterface
-hi def link     uEEnum          Type
 
 hi def link     uIdentifier     uIdentifier
 hi def link     uSymbol         uSymbol
