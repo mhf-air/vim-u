@@ -1,9 +1,9 @@
-
 " Note: should not use augroup in ftdetect (see :help ftdetect)
 au BufRead,BufNewFile *.u setfiletype u
 
 au BufRead *.u call u#BeforeRead()
 au BufWritePost *.u call u#ToRust()
+au BufWritePost */u.toml call u#ToCargoToml()
 
 au CursorMoved,CursorHold *.u  call u#ShowErrorMsg()
 
@@ -87,4 +87,15 @@ function! u#ShowErrorMsg()
 		let s:echoed_empty = 1
 	endif
 
+endfunction
+
+" add redraw to supress 'Press enter to continue' in echom
+function! u#ToCargoToml()
+	redraw | echom "syncing..."
+	let l:cmd = "u u-sync"
+	let job = job_start(l:cmd, {'close_cb': 'u#ToCargoTomlCb'})
+endfunction
+
+function! u#ToCargoTomlCb(ch)
+	redraw | echom "sync done"
 endfunction
