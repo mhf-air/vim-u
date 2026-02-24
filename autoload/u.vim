@@ -33,10 +33,23 @@ function! u#BeforeRead()
 endfunction
 
 function! u#ToRust()
+	let l:file = expand('%:p')
+	let l:cmd = ["u", "u-compile", l:file]
+	call job_start(l:cmd, {
+		\ 'close_cb': {ch -> u#HandleCompileOutput(ch)},
+		\ 'out_mode': 'nl'
+		\ })
+endfunction
 
-	let l:cmd = "u u-compile"
-	let l:output = system(l:cmd ." ". expand('%:p'))
+function! u#HandleCompileOutput(channel)
+	let l:output = ""
+	" Read everything from the stdout channel
+	while ch_status(a:channel, {'part': 'out'}) == 'buffered'
+		let l:output .= ch_read(a:channel)
+	endwhile
+
 	" let l:output = '[ { "lnum": 1,  "col": 1, "_width": 6, "text": "one" }, { "lnum": 10, "col": 9, "_width": 5, "text": "two" }]'
+
 	let l:list = []
 	if l:output != ""
 		try
@@ -57,7 +70,6 @@ function! u#ToRust()
 	endfor
 
 	call setloclist(0, l:list, 'r')
-
 endfunction
 
 function! u#ShowErrorMsg()
