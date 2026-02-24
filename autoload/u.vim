@@ -47,7 +47,10 @@ function! u#ToRust()
 
 	call sign_unplace('*', {'buffer' : "%"})
 	call prop_remove({ "type": "uPropError", "all": 1 })
-	call ale#engine#CleanupEveryBuffer()
+
+	" to be honest, I don't know why I added this line
+	" call ale#engine#CleanupEveryBuffer()
+
 	for item in l:list
 		call sign_place(0, '', 'uError', '%', { 'lnum': item.lnum })
 		call prop_add(item.lnum, item.col, {'length': item._width, 'type': 'uPropError'})
