@@ -7,8 +7,6 @@ augroup u.vim
 	autocmd!
 	au BufWritePost <buffer> call u#ToRust()
 	au CursorMoved,CursorHold <buffer> call u#ShowErrorMsg()
-
-	au BufWritePost */u.toml call u#ToCargoToml()
 augroup END
 
 " after entering <CR> followed by '.', if the above line doesn't have

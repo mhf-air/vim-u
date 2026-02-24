@@ -1,7 +1,9 @@
-" 1. Only run for specific toml files (optional)
+" only run for specific toml files
 if expand('%:t') != 'u.toml'
 	finish
 endif
 
-" 2. Load your 'u' logic
-runtime! ftplugin/u.vim
+augroup u.toml.vim
+	autocmd!
+	au BufWritePost */u.toml call u#ToCargoToml()
+augroup END
