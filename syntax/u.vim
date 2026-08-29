@@ -26,7 +26,7 @@ syn keyword     uUnsafe     unsafe
 syn keyword     uType       i8 i16 i32 i64 i128 isize
 syn keyword     uType       u8 u16 u32 u64 u128 usize
 syn keyword     uType       f32 f64
-syn keyword     uType       bool char str string
+syn keyword     uType       bool char str
 syn keyword     uType       Self
 
 syn match   uOp             /\v[\+|\~|\*|\/|%|<<|>>|&|\||\^|=|!|<|>|``]?\=?/
@@ -51,7 +51,7 @@ syn match   uStructType     "\<[A-Z][a-zA-Z0-9-]\+"
 
 " syn match   uSymbol         "\<[a-zA-Z0-9-]\+\(+\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\s\+\(const\|static\|func\|struct\|enum\|union\|type\|interface\|macro\|mod\|(\)\@="he=e-1,me=e-1
 " words [+[vis]] [space (Type)] space keyword
-syn match   uSymbol         "\<[a-zA-Z0-9-]\+\(\(+\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\(\s\+(.*)\)\?\s\+\(const\|static\|func\|struct\|enum\|union\|type\|interface\|macro\|mod\)[a-zA-Z0-9-]\@!\)\@="
+syn match   uSymbol         "\<[a-zA-Z0-9-]\+\(\([+^]\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\(\s\+(.*)\)\?\s\+\(const\|static\|func\|struct\|enum\|union\|type\|interface\|macro\|mod\)[a-zA-Z0-9-]\@!\)\@="
 syn match   uSymbol         "^\s*[a-zA-Z0-9-]\+\(+\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\["he=e-1,me=e-1
 
 " macro call
