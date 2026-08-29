@@ -151,3 +151,10 @@ func! u#InsertDot()
 
 	return "."
 endf
+
+func! u#AddPubCrate(type = '')
+	execute("normal! ^ea^\<esc>")
+endf
+func! u#AddPub(type = '')
+	execute("normal! ^ea+\<esc>")
+endf
