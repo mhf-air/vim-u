@@ -16,5 +16,6 @@ inoremap <silent> <buffer> . <C-R>=u#InsertDot()<CR>
 " allow repeat by '.'
 nnoremap <silent> <buffer> <leader>^ :set operatorfunc=u#AddPubCrate<CR>g@l
 nnoremap <silent> <buffer> <leader>+ :set operatorfunc=u#AddPub<CR>g@l
+nnoremap <silent> <buffer> <leader>am :call u#AddMut()<CR>
 
 call u#BeforeRead()

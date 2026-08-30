@@ -153,8 +153,11 @@ func! u#InsertDot()
 endf
 
 func! u#AddPubCrate(type = '')
-	execute("normal! ^ea^\<esc>")
+	s/^\s*\k\+/&^/
 endf
 func! u#AddPub(type = '')
-	execute("normal! ^ea+\<esc>")
+	s/^\s*\k\+/&+/
+endf
+func! u#AddMut()
+	s/^\s*\k\+/& mut/
 endf
