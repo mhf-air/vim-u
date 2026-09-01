@@ -99,6 +99,17 @@ syn region  uAttr       start="#!\?\[" end="\]" contains=none
 
 syn match   uShebang    /\%^#![^[].*/
 " comment
+syn match uCommentM1 /\(\S.*\)\@<!\// containedin=uCommentLine conceal cchar= nextgroup=uCommentM2
+syn match uCommentM2 /\// contained conceal cchar= " space
+
+syn match uCommentMD1 /^\s*\zs\// containedin=uCommentLineDoc conceal cchar= nextgroup=uCommentMD2
+syn match uCommentMD2 /\// contained conceal cchar= nextgroup=uCommentMD3
+syn match uCommentMD3 /\// contained conceal cchar= " space
+
+syn match uCommentMDI1 /^\s*\zs\// containedin=uCommentLineDoc conceal cchar= nextgroup=uCommentMDI2
+syn match uCommentMDI2 /\// contained conceal cchar= nextgroup=uCommentMDI3
+syn match uCommentMDI3 /\!/ contained conceal cchar= " space
+
 syn region uCommentLine                                                 start="//"                      end="$"   contains=uTodo,@Spell
 syn region uCommentLineDoc                                              start="//\%(//\@!\|!\)"         end="$"   contains=uTodo,uDocCode,@Spell
 syn region uCommentLineDocError                                         start="//\%(//\@!\|!\)"         end="$"   contains=uTodo,uDocCode,@Spell contained
