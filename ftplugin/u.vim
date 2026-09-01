@@ -18,4 +18,8 @@ nnoremap <silent> <buffer> <leader>^ :set operatorfunc=u#AddPubCrate<CR>g@l
 nnoremap <silent> <buffer> <leader>+ :set operatorfunc=u#AddPub<CR>g@l
 nnoremap <silent> <buffer> <leader>am :call u#AddMut()<CR>
 
+" continue in comment when starting a new line from a line in comment
+nnoremap <silent> <buffer> <expr> o u#OnNormalO()
+inoremap <silent> <buffer> <expr> <CR> u#OnInsertEnter()
+
 call u#BeforeRead()

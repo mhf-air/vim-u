@@ -161,3 +161,32 @@ endf
 func! u#AddMut()
 	s/^\s*\k\+/& mut/
 endf
+
+func! u#OnNormalO()
+	" check if current line starts with optional whitespace followed by '//'
+	let l:line = getline(".")
+	if l:line =~# '^\s*//'
+		if l:line =~# '^\s*///'
+			return "o" . "/// "
+		endif
+		if l:line =~# '^\s*//!'
+			return "o" . "//! "
+		endif
+		return "o" . "// "
+	endif
+	return "o"
+endf
+
+function! u#OnInsertEnter()
+	let l:line = getline(".")
+	if l:line =~# '^\s*//'
+		if l:line =~# '^\s*///'
+			return "\<CR>" . "/// "
+		endif
+		if l:line =~# '^\s*//!'
+			return "\<CR>" . "//! "
+		endif
+		return "\<CR>" . "// "
+	endif
+	return "\<CR>"
+endfunction
