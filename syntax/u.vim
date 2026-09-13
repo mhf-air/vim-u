@@ -8,9 +8,9 @@ endif
 
 syn keyword     uCrate      crate       contained
 
-syn keyword     uItem       import mod crate super
+syn keyword     uItem       use mod crate super
 syn keyword     uItem       const static type
-syn keyword     uItem       func struct enum union interface impl macro where
+syn keyword     uItem       func struct enum union trait impl macro where
 
 syn keyword     uStmt       let if else match for in ret break continue
 syn keyword     uStmt       mut ref
@@ -50,7 +50,7 @@ syn match   uStructType     "\<[A-Z]"
 syn match   uStructType     "\<[A-Z][a-zA-Z0-9-]\+"
 
 " words [+[vis]] [space (Type)] space keyword
-syn match   uSymbol         "\<[a-zA-Z0-9-]\+\(\([+^]\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\(\s\+(.*)\)\?\s\+\(const\|static\|func\|struct\|enum\|union\|type\|interface\|macro\|mod\)[a-zA-Z0-9-]\@!\)\@="
+syn match   uSymbol         "\<[a-zA-Z0-9-]\+\(\([+^]\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\(\s\+(.*)\)\?\s\+\(const\|static\|func\|struct\|enum\|union\|type\|trait\|macro\|mod\)[a-zA-Z0-9-]\@!\)\@="
 syn match   uSymbol         "^\s*[a-zA-Z0-9-]\+\ze\([+^]\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\["
 
 " macro call
