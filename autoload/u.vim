@@ -152,6 +152,15 @@ func! u#InsertDot()
 	return "."
 endf
 
+func! u#DeriveDebugOther(keyword)
+	let l:line_num = line(".")
+	let l:line_text = getline(line_num)
+	if l:line_text[0:1] !=# "//"
+		" defer to prevent modification error
+		call timer_start(0, { -> s:DoDeriveDebug(l:line_num, l:line_text) })
+	endif
+	return a:keyword
+endf
 func! u#DeriveDebug()
 	if v:char ==# '('
 		let l:line_num = line(".")
@@ -163,18 +172,7 @@ func! u#DeriveDebug()
 			" defer to prevent modification error
 			call timer_start(0, { -> s:DoDeriveDebug(l:line_num, l:line_text) })
 		endif
-	elseif v:char ==# '{'
-		let l:line_num = line(".")
-		let l:line_text = getline(line_num)
-		if empty(l:line_text)
-			return
-		endif
-		if (l:line_text[-8:] ==# " struct " || l:line_text[-6:] ==# " enum ")
-				\ && l:line_text[0:1] !=# "//"
-			" defer to prevent modification error
-			call timer_start(0, { -> s:DoDeriveDebug(l:line_num, l:line_text) })
-		endif
-	end
+	endif
 endf
 func! s:DoDeriveDebug(line_num, line_text)
 	let l:indent = matchstr(a:line_text, '^\s*')

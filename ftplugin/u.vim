@@ -23,4 +23,9 @@ nnoremap <silent> <buffer> <leader>am :call u#AddMut()<CR>
 nnoremap <silent> <buffer> <expr> o u#OnNormalO()
 inoremap <silent> <buffer> <expr> <CR> u#OnInsertEnter()
 
+" auto add #[derive(Debug)] for struct and enum
+" use iabbrev instead of InsertCharPre, because there might be WhereClause after 'struct'
+iabbrev <buffer> <expr> struct u#DeriveDebugOther("struct")
+iabbrev <buffer> <expr> enum u#DeriveDebugOther("enum")
+
 call u#BeforeRead()
