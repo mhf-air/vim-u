@@ -4,7 +4,7 @@ let s:echoed_empty = 0
 function! u#BeforeRead()
 	" NOTE: useless
 	" let l:cmd = "u u-fix-mod " . expand("%:p")
-	" let job = job_start(l:cmd)
+	" let l:job = job_start(l:cmd)
 
 	call sign_define("uError", {
 		\ "text" : ">>",
@@ -13,12 +13,12 @@ function! u#BeforeRead()
 		\ "text" : "--",
 		\ "texthl" : "uWarning"})
 
-	let uPropError = prop_type_get('uPropError')
-	if empty(uPropError)
+	let l:uPropError = prop_type_get('uPropError')
+	if empty(l:uPropError)
 		call prop_type_add('uPropError', {'highlight': 'Error'})
 	endif
-	let uPropWarning = prop_type_get('uPropWarning')
-	if empty(uPropWarning)
+	let l:uPropWarning = prop_type_get('uPropWarning')
+	if empty(l:uPropWarning)
 		call prop_type_add('uPropWarning', {'highlight': 'SpellCap'})
 	endif
 
@@ -64,9 +64,9 @@ function! u#HandleCompileOutput(channel)
 	" to be honest, I don't know why I added this line
 	" call ale#engine#CleanupEveryBuffer()
 
-	for item in l:list
-		call sign_place(0, '', 'uError', '%', { 'lnum': item.lnum })
-		call prop_add(item.lnum, item.col, {'length': item._width, 'type': 'uPropError'})
+	for l:it in l:list
+		call sign_place(0, '', 'uError', '%', { 'lnum': l:it.lnum })
+		call prop_add(l:it.lnum, l:it.col, {'length': l:it._width, 'type': 'uPropError'})
 	endfor
 
 	call setloclist(0, l:list, 'r')
@@ -83,8 +83,8 @@ function! u#ShowErrorMsg()
 	let l:msg = ""
 
 	let l:i = 0
-	for item in l:list
-		if item.lnum == l:line
+	for l:it in l:list
+		if l:it.lnum == l:line
 			let l:msg = l:list[l:i].text
 			break
 		endif
@@ -105,7 +105,7 @@ endfunction
 function! u#ToCargoToml()
 	redraw | echom "syncing..."
 	let l:cmd = "u u-sync " . expand("%:p")
-	let job = job_start(l:cmd, {'close_cb': 'u#ToCargoTomlCb'})
+	let l:job = job_start(l:cmd, {'close_cb': 'u#ToCargoTomlCb'})
 endfunction
 
 function! u#ToCargoTomlCb(ch)
@@ -114,20 +114,20 @@ endfunction
 
 " ------------------------------------------------------------
 func! u#InsertDot()
-	let cur_line = getline('.')
-	let pos = col('.')
-	let before = trim(strpart(cur_line, 0, pos))
+	let l:cur_line = getline('.')
+	let l:pos = col('.')
+	let l:before = trim(strpart(l:cur_line, 0, l:pos))
 
-	if len(before) != 0
+	if len(l:before) != 0
 		" for ... in struct short init expression, reduce indent
-		if len(before) == 2 && before == '..'
+		if len(l:before) == 2 && l:before == '..'
 			return ".\<Esc>\<\<A"
 		end
 		return "."
 	end
 
-	let above_line = trim(getline(line('.') - 1))
-	if len(above_line) == 0
+	let l:above_line = trim(getline(line('.') - 1))
+	if len(l:above_line) == 0
 		return "."
 	end
 
@@ -140,16 +140,45 @@ func! u#InsertDot()
 	" {
 	" }
 	" ..b
-	let above_last = above_line[len(above_line) - 1]
-	if above_last == ',' || above_last == '{' || above_last == '}'
+	let l:above_last = l:above_line[len(l:above_line) - 1]
+	if l:above_last == ',' || l:above_last == '{' || l:above_last == '}'
 		return "."
 	end
 
-	if above_line[0] != '.'
+	if l:above_line[0] != '.'
 		return "\<Tab>."
 	end
 
 	return "."
+endf
+
+func! u#DeriveDebug()
+	if v:char ==# '('
+		let l:line_num = line(".")
+		let l:line_text = getline(line_num)
+		if empty(l:line_text)
+			return
+		endif
+		if l:line_text[-7:] ==# " struct" && l:line_text[0:1] !=# "//"
+			" defer to prevent modification error
+			call timer_start(0, { -> s:DoDeriveDebug(l:line_num, l:line_text) })
+		endif
+	elseif v:char ==# '{'
+		let l:line_num = line(".")
+		let l:line_text = getline(line_num)
+		if empty(l:line_text)
+			return
+		endif
+		if (l:line_text[-8:] ==# " struct " || l:line_text[-6:] ==# " enum ")
+				\ && l:line_text[0:1] !=# "//"
+			" defer to prevent modification error
+			call timer_start(0, { -> s:DoDeriveDebug(l:line_num, l:line_text) })
+		endif
+	end
+endf
+func! s:DoDeriveDebug(line_num, line_text)
+	let l:indent = matchstr(a:line_text, '^\s*')
+	call append(a:line_num - 1, l:indent .. "#[derive(Debug)]")
 endf
 
 func! u#AddPubCrate(type = '')
