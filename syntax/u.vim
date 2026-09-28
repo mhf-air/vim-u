@@ -54,7 +54,7 @@ syn match   uSymbol         "\<[a-zA-Z0-9-]\+\(\([+^]\((\(self\|super\|crate\|\(
 syn match   uSymbol         "^\s*[a-zA-Z0-9-]\+\ze\([+^]\((\(self\|super\|crate\|\(in\s\+\(self\|super\|crate\)\(\.\.[a-zA-Z0-9-]\+\)\+\)\))\)\?\)\?\["
 
 " macro call
-syn match   uMacroCall    "\<[a-zA-Z0-9-]\+,,"
+syn match   uMacroCall    "\<[a-zA-Z0-9-]\+_"
 
 " number
 syn match   uDecNumber   display "\<[0-9][0-9_]*\%([iu]\%(size\|8\|16\|32\|64\|128\)\)\="
