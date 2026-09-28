@@ -30,7 +30,7 @@ syn keyword     uType       bool char str
 syn keyword     uType       Self
 
 syn match   uOp             /\v[\+|\~|\*|\/|%|<<|>>|&|\||\^|=|!|<|>|``]?\=?/
-syn match   uOp             /\v\$|;|#|\?|\@|:|::|\.\.\=|\=>/
+syn match   uOp             /\v\$|;|#|\?|\@|,,|:|::|\.\.\=|\=>/
 syn match   uModPathSep     "\.\."
 syn match   uOp             /\v\s\.\.(\.)?/
 
@@ -130,6 +130,7 @@ syn keyword uTodo contained TODO FIXME XXX NOTE SAFETY
 " pair
 syn match   uParen          /\v\(|\)/
 syn match   uSquare         /\v\[|\]/
+syn match   uArraySquare    /\v\[`|`\]/
 syn match   uBrace          /\v\{|\}/
 syn match   uDoubleBrace    /\v\{\{|\}\}/
 
@@ -148,6 +149,7 @@ hi uIdentifierStatic ctermfg=181 cterm=bold
 hi uUnsafe ctermfg=9 cterm=bold
 hi uParen ctermfg=255
 hi uSquare ctermfg=73
+hi uArraySquare ctermfg=106
 hi uBrace ctermfg=250
 hi uDoubleBrace ctermfg=106
 hi uArray ctermfg=121
