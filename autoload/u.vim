@@ -2,10 +2,6 @@ let s:last_line = -1
 let s:echoed_empty = 0
 
 function! u#BeforeRead()
-	" NOTE: useless
-	" let l:cmd = "u u-fix-mod " . expand("%:p")
-	" let l:job = job_start(l:cmd)
-
 	call sign_define("uError", {
 		\ "text" : ">>",
 		\ "texthl" : "uError"})
@@ -34,7 +30,7 @@ endfunction
 
 function! u#ToRust()
 	let l:file = expand('%:p')
-	let l:cmd = ["u", "u-compile", l:file]
+	let l:cmd = ["u", "to-rs", l:file]
 	call job_start(l:cmd, {
 		\ 'close_cb': {ch -> u#HandleCompileOutput(ch)},
 		\ 'out_mode': 'nl'
@@ -99,17 +95,6 @@ function! u#ShowErrorMsg()
 		let s:echoed_empty = 1
 	endif
 
-endfunction
-
-" add redraw to supress 'Press enter to continue' in echom
-function! u#ToCargoToml()
-	redraw | echom "syncing..."
-	let l:cmd = "u u-sync " . expand("%:p")
-	let l:job = job_start(l:cmd, {'close_cb': 'u#ToCargoTomlCb'})
-endfunction
-
-function! u#ToCargoTomlCb(ch)
-	redraw | echom "sync done"
 endfunction
 
 " ------------------------------------------------------------
