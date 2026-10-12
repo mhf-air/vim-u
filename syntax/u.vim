@@ -30,7 +30,7 @@ syn keyword     uType       bool char str
 syn keyword     uType       Self
 
 syn match   uOp             /\v[\+|\~|\*|\/|%|<<|>>|&|\||\^|=|!|<|>|``]?\=?/
-syn match   uOp             /\v\$|;|#|\?|\@|,,|:|::|\.\.\=|\=>/
+syn match   uOp             /\v\$|;|#|\?|\@|,,|:|::|\.\.\=|\=>|\*_/
 syn match   uModPathSep     "\.\."
 syn match   uOp             /\v\s\.\.(\.)?/
 
@@ -41,6 +41,7 @@ syn match   uIdentifierStatic   "\<[a-zA-Z0-9-]\+--g"
 
 syn match   uFirstSymbol    "\<[a-zA-Z0-9-]\+\ze\s\+\(.*\)\(let\|:=\)\@="
 syn match   uDecl           /:=\|->/
+syn match   uRet           /_/
 
 " func call
 syn match   uFuncCall    "\<[a-zA-Z0-9-]\+("he=e-1,me=e-1
@@ -155,6 +156,7 @@ hi uDoubleBrace ctermfg=106
 hi uArray ctermfg=121
 hi uKeyword ctermfg=185
 hi uOp ctermfg=81
+hi uRet ctermfg=185 cterm=bold
 hi uAttr ctermfg=103
 hi uLabel ctermfg=103
 hi uModPathSep ctermfg=103
