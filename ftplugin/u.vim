@@ -5,7 +5,7 @@ let b:did_ftplugin = 1
 
 augroup u.vim
 	autocmd!
-	au BufWritePost <buffer> call u#ToRust()
+	" au BufWritePost <buffer> call u#ToRust()
 	au CursorMoved,CursorHold <buffer> call u#ShowErrorMsg()
 	au InsertCharPre <buffer> call u#DeriveDebug()
 augroup END
