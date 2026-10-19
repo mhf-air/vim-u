@@ -103,16 +103,16 @@ syn match   uShebang    /\%^#![^[].*/
 " comment
 " //
 syn match uCommentM1 /\(\S.*\)\@<!\// containedin=uCommentLine conceal cchar= nextgroup=uCommentM2
-syn match uCommentM2 /\// contained conceal cchar= " space
+syn match uCommentM2 /\/\s/ contained conceal cchar= " space
 
 " /// and //!
 syn match uCommentMD1 /\(\S.*\)\@<!\// containedin=uCommentLineDoc conceal cchar= nextgroup=uCommentMD2
 syn match uCommentMD2 /\// contained conceal cchar= nextgroup=uCommentMD3
-syn match uCommentMD3 /\(\/\|\!\)/ contained conceal cchar= " space
+syn match uCommentMD3 /\(\/\|\!\)\s\?/ contained conceal cchar= " space
 
-syn region uCommentLine                                                 start="//"                      end="$"   contains=uTodo,@Spell
-syn region uCommentLineDoc                                              start="//\%(//\@!\|!\)"         end="$"   contains=uTodo,uDocCode,@Spell
-syn region uCommentLineDocError                                         start="//\%(//\@!\|!\)"         end="$"   contains=uTodo,uDocCode,@Spell contained
+syn region uCommentLine start="//" end="$" contains=uTodo,@Spell
+syn region uCommentLineDoc start="//\%(//\@!\|!\)" end="$" contains=uTodo,@Spell
+syn region uCommentLineDocError start="//\%(//\@!\|!\)" end="$" contains=uTodo,uDocCode,@Spell contained
 syn region uCommentBlock             matchgroup=uCommentBlock           start="/\*\%(!\|\*[*/]\@!\)\@!" end="\*/" contains=uTodo,uCommentBlockNest,@Spell
 syn region uCommentBlockDoc          matchgroup=uCommentBlockDoc        start="/\*\%(!\|\*[*/]\@!\)"    end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNest,uCommentBlockDocuCode,@Spell
 syn region uCommentBlockDocError     matchgroup=uCommentBlockDocError   start="/\*\%(!\|\*[*/]\@!\)"    end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNestError,@Spell contained
@@ -121,7 +121,7 @@ syn region uCommentBlockDocNest      matchgroup=uCommentBlockDoc        start="/
 syn region uCommentBlockDocNestError matchgroup=uCommentBlockDocError   start="/\*"                     end="\*/" contains=uTodo,uDocCode,uCommentBlockDocNestError,@Spell contained transparent
 
 
-syn region  uDocCode    start="```"     end="```" contained
+syn region  uDocCode start="```" end="```" contained
 
 
 " todo
@@ -141,7 +141,7 @@ syn match   uDoubleBrace    /\v\{\{|\}\}/
 hi uError ctermfg=9 ctermbg=235
 hi uWarning ctermfg=11 ctermbg=235
 
-hi uSymbol ctermfg=202 cterm=bold
+hi uSymbol ctermfg=166 cterm=bold
 hi uFirstSymbol ctermfg=15 cterm=bold
 hi uIdentifier ctermfg=15
 hi uIdentifierConst ctermfg=109 cterm=bold
@@ -164,7 +164,7 @@ hi uFunction ctermfg=221
 hi uMacroCall ctermfg=183
 hi uSelf ctermfg=13
 hi uComment ctermfg=14
-hi uSpecialComment ctermfg=117
+hi uSpecialComment ctermfg=250
 hi uDocCode ctermfg=109
 
 
