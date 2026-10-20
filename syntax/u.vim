@@ -140,6 +140,7 @@ syn match   uDoubleBrace    /\v\{\{|\}\}/
 
 hi uError ctermfg=9 ctermbg=235
 hi uWarning ctermfg=11 ctermbg=235
+hi uError2 ctermfg=161
 
 hi uSymbol ctermfg=166 cterm=bold
 hi uFirstSymbol ctermfg=15 cterm=bold

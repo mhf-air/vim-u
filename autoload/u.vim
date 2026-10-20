@@ -1,6 +1,23 @@
 let s:last_line = -1
 let s:echoed_empty = 0
 
+function! s:init_var(var, value) abort
+	if !exists('g:u_' . a:var)
+		execute 'let g:u_' . a:var . ' = ' . string(a:value)
+	endif
+endfunction
+
+function! s:setup_options() abort
+	let options = [
+		\ ['dir_rs', []],
+		\ ['dir_writable', []],
+	\ ]
+	for [opt, val] in options
+		call s:init_var(opt, val)
+		unlet val
+	endfor
+endfunction
+
 function! u#BeforeRead()
 	call sign_define("uError", {
 		\ "text" : ">>",
@@ -26,6 +43,10 @@ function! u#BeforeRead()
 	" Syntax highlighting breaks less often.
 	syntax sync fromstart
 
+	" define other prop types
+	if empty(prop_type_get("error_hint"))
+		call prop_type_add('error_hint', {'highlight': 'uError2'})
+	endif
 endfunction
 
 function! u#ToRust()
@@ -201,4 +222,135 @@ function! u#OnInsertEnter()
 		return "\<CR>" . "// "
 	endif
 	return "\<CR>"
+endfunction
+
+" ------------------------------------------------------------------------------
+" auto open some-path/.*.u when opening some-path/*.rs
+function! u#AutoOpen()
+	let l:file_full = expand('<afile>:p')
+	call s:AutoOpenInner(l:file_full)
+endfunction
+
+function! s:AutoOpenInner(file_full)
+	call s:setup_options()
+
+	let l:dir = fnamemodify(a:file_full, ':h')
+	let l:file = fnamemodify(a:file_full, ':t')
+	let l:target = l:dir . '/.' . substitute(l:file, '\.rs$', '.u', '')
+
+	if exists("t:open_rs_directly")
+		call u#OpenRs()
+		return
+	endif
+
+	" open .rs file directly
+	for l:d in g:u_dir_rs
+		if StringStartsWith(l:dir, expand(l:d))
+			call u#OpenRs()
+			return
+		endif
+	endfor
+
+	" if rs-to-u fails, open *.rs file directly
+	let l:output = system("u r-u ". a:file_full . " " . l:target)
+	if l:output != ""
+		call u#OpenRs()
+		return
+	endif
+
+	" writable
+	let l:writable = 0
+	for l:d in g:u_dir_writable
+		if StringStartsWith(l:dir, expand(l:d))
+			let l:writable = 1
+			break
+		endif
+	endfor
+	if !l:writable
+		call system("chmod 444 " . l:target)
+	endif
+
+	" open .u file
+	execute 'edit ' . fnameescape(l:target)
+	execute 'filetype detect'
+	" explicitly kickstart ALE for this new buffer if it's installed
+	if exists(':ALELint') == 2
+		ALELint
+	endif
+	execute 'bdelete #'
+
+	let t:mhf_ops = []
+	call insert(t:mhf_ops, { "name": "open .rs", "f": "u#OpenRsFromU" }, 0)
+endfunction
+
+" open .rs directly from .u file
+function! u#OpenRsFromU()
+	let l:dir = expand("%:p:h")
+	let l:file = expand("%:p:t")
+	let l:target = l:dir . '/' . l:file[1:(len(l:file) - 3)] . '.rs'
+	let t:open_rs_directly = 0
+	execute 'edit ' . fnameescape(l:target)
+
+	let t:mhf_ops = []
+	call insert(t:mhf_ops, { "name": "open .u", "f": "u#OpenUFromRs" }, 0)
+endfunction
+
+" open .u directly from .rs file
+function! u#OpenUFromRs()
+	unlet t:open_rs_directly
+	let l:file_full = expand("%:p")
+	call s:AutoOpenInner(l:file_full)
+endfunction
+
+" auto delete some-path/.*.u when closing the tab if file some-path/*.rs exists
+function! u#AutoDelete()
+	let l:dir = expand('<afile>:p:h')
+	let l:file = expand('<afile>:t')
+	let l:target = l:dir . '/' . substitute(l:file, '^\.\(.*\)\.u$', '\1.rs', '')
+	if !filereadable(l:target)
+		return
+	endif
+
+	call delete(expand('<afile>'))
+endfunction
+
+" auto write to some-path/*.rs when writing to some-path/.*.u
+function! u#AutoWrite()
+	let l:file_full = expand('<afile>')
+	if !filereadable(l:file_full)
+		return
+	endif
+
+	call prop_clear(1, line("$"))
+
+	call SaveLight()
+
+	let l:dir = expand('<afile>:p:h')
+	let l:file = expand('<afile>:t')
+	let l:target = l:dir . '/' . substitute(l:file, '^\.\(.*\)\.u$', '\1.rs', '')
+
+	let l:output = system("u u-r ". l:file_full . " " . l:target)
+	if l:output != ""
+		let l:out = json_decode(l:output)[0]
+		call prop_add(l:out.lnum, 0, {
+			\ 'type': "error_hint",
+			\ 'text': "    " . l:out.text,
+			\ 'text_align': 'after',
+		\ })
+		return
+	endif
+endfunction
+
+" open .rs file
+function! u#OpenRs()
+	execute 'noautocmd edit ' . fnameescape(expand('<afile>:p'))
+
+	" purge undo history, so that pressing 'u' after opening the file won't clear all content
+	let s:ul = &g:undolevels
+	setlocal undolevels=-1
+	execute "normal! a \<BS>"
+	let &l:undolevels = s:ul
+
+	setfiletype rust
+	setlocal nomodified
 endfunction

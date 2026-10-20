@@ -5,9 +5,11 @@ let b:did_ftplugin = 1
 
 augroup u.vim
 	autocmd!
-	" au BufWritePost <buffer> call u#ToRust()
 	au CursorMoved,CursorHold <buffer> call u#ShowErrorMsg()
 	au InsertCharPre <buffer> call u#DeriveDebug()
+
+	au BufUnload .*.u call u#AutoDelete()
+	au TextChanged .*.u nested call u#AutoWrite()
 augroup END
 
 " after entering <CR> followed by '.', if the above line doesn't have
