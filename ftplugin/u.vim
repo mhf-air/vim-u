@@ -12,6 +12,8 @@ augroup u.vim
 	au TextChanged .*.u nested call u#AutoWrite()
 augroup END
 
+setlocal isk-=_
+
 " after entering <CR> followed by '.', if the above line doesn't have
 " a leading '.', then prepend a <Tab> infront of the '.'
 inoremap <silent> <buffer> . <C-R>=u#InsertDot()<CR>
